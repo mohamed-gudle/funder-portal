@@ -8,6 +8,9 @@ import {
 export const searchParams = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
+  limit: parseAsInteger.withDefault(10), // Alias for perPage
+  q: parseAsString, // Search query
+  categories: parseAsString, // Categories filter
   name: parseAsString,
   gender: parseAsString,
   category: parseAsString

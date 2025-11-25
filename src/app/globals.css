@@ -117,8 +117,62 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(244, 125, 95, 0.1) 0%,
+      /* Coral from AfCEN logo sunset */ rgba(255, 145, 105, 0.06) 20%,
+      /* Light coral */ rgba(255, 160, 120, 0.04) 40%,
+      /* Peachy transition */ rgba(200, 220, 180, 0.03) 60%,
+      /* Subtle green undertone */ rgba(180, 210, 170, 0.04) 80%,
+      /* Light green from logo */ rgba(160, 200, 160, 0.05) 100%
+        /* Soft green finish */
+    );
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Glassmorphism for cards */
+  [data-slot='card'] {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dark [data-slot='card'] {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Glassmorphism for popovers */
+  [data-slot='popover'] {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .dark [data-slot='popover'] {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -145,6 +199,7 @@
     clip-path: circle(0% at var(--x, 50%) var(--y, 50%));
     opacity: 0.7;
   }
+
   to {
     /* Use CSS variables for the origin, defaulting to center if not set */
     clip-path: circle(150% at var(--x, 50%) var(--y, 50%));

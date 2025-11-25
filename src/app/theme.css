@@ -1,5 +1,15 @@
 body {
-  @apply overscroll-none bg-transparent;
+  @apply overscroll-none;
+  background: linear-gradient(
+    135deg,
+    rgba(244, 125, 95, 0.12) 0%,
+    /* Coral from logo */ rgba(255, 145, 105, 0.08) 25%,
+    /* Light coral */ rgba(255, 160, 120, 0.06) 50%,
+    /* Peachy coral */ rgba(220, 140, 100, 0.08) 75%,
+    /* Warm coral */ rgba(244, 125, 95, 0.1) 100% /* Back to coral */
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 :root {
@@ -101,5 +111,26 @@ body {
   [data-slot='toggle-group'],
   [data-slot='toggle-group-item'] {
     @apply !rounded-none !shadow-none;
+  }
+}
+
+.theme-tangerine,
+.theme-tangerine-scaled {
+  /* Deep green from AfCEN logo */
+  --primary: oklch(0.35 0.12 155);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Coral/orange accent from logo sunset */
+  --accent: oklch(0.72 0.15 45);
+  --accent-foreground: oklch(0.15 0 0);
+
+  @variant dark {
+    /* Brighter green for dark mode */
+    --primary: oklch(0.45 0.14 155);
+    --primary-foreground: oklch(0.99 0 0);
+
+    /* Coral accent for dark mode */
+    --accent: oklch(0.68 0.14 40);
+    --accent-foreground: oklch(0.99 0 0);
   }
 }

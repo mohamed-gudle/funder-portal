@@ -30,33 +30,28 @@ export const navItems: NavItem[] = [
     items: [] // No child items
   },
   {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
-
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
-  },
-  {
     title: 'Kanban',
     url: '/dashboard/kanban',
     icon: 'kanban',
     shortcut: ['k', 'k'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Open Calls',
+    url: '/dashboard/open-calls',
+    icon: 'billing', // Using billing icon as a placeholder for grants/money
+    shortcut: ['o', 'c'],
+    isActive: false,
+    items: []
+  },
+  {
+    title: 'Bilateral',
+    url: '/dashboard/bilateral-engagements',
+    icon: 'user', // Using user icon for relationships
+    shortcut: ['b', 'e'],
+    isActive: false,
+    items: []
   }
 ];
 
