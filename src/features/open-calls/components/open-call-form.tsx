@@ -3,11 +3,13 @@
 import { FormFileUpload } from '@/components/forms/form-file-upload';
 import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
+import { FormSelectAvatar } from '@/components/forms/form-select-avatar';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { fakeOpenCalls } from '@/constants/mock-modules';
+import { dummyUsers } from '@/constants/data';
 import { OpenCall } from '@/types/modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -135,11 +137,18 @@ export default function OpenCallForm({
                 { label: 'Health', value: 'Health' }
               ]}
             />
-            <FormInput
+            <FormSelect
               control={form.control}
               name='grantType'
               label='Grant Type'
-              placeholder='e.g. Traditional Grant'
+              placeholder='Select grant type'
+              options={[
+                { label: 'Traditional Grant', value: 'Traditional Grant' },
+                { label: 'Challenge Fund', value: 'Challenge Fund' },
+                { label: 'Innovation Grant', value: 'Innovation Grant' },
+                { label: 'Research Grant', value: 'Research Grant' },
+                { label: 'Other', value: 'Other' }
+              ]}
             />
             <FormInput
               control={form.control}
@@ -160,11 +169,17 @@ export default function OpenCallForm({
               label='URL'
               placeholder='https://...'
             />
-            <FormInput
+            <FormSelectAvatar
               control={form.control}
               name='internalOwner'
               label='Internal Owner'
               placeholder='Assign an owner'
+              options={dummyUsers.map((user) => ({
+                label: user.name,
+                value: user.name,
+                image: user.image,
+                initials: user.initials
+              }))}
             />
             <FormSelect
               control={form.control}
@@ -202,11 +217,18 @@ export default function OpenCallForm({
           />
 
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <FormInput
+            <FormSelectAvatar
               control={form.control}
               name='priorityProject'
-              label='Priority Project'
-              placeholder='Linked project'
+              label='Project Owner'
+              placeholder='Select project owner'
+              description='The team member responsible for this project'
+              options={dummyUsers.map((user) => ({
+                label: user.name,
+                value: user.name,
+                image: user.image,
+                initials: user.initials
+              }))}
             />
             <FormInput
               control={form.control}

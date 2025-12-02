@@ -4,8 +4,8 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import { OpenCall } from '@/types/modules';
-import { parseAsInteger, useQueryState } from 'nuqs';
 import { columns } from './columns';
+import { useMemo } from 'react';
 
 interface OpenCallTableProps {
   data: OpenCall[];
@@ -16,15 +16,21 @@ export default function OpenCallTable({
   data,
   totalItems
 }: OpenCallTableProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
-  const pageCount = Math.ceil(totalItems / pageSize);
+  // Use useMemo to ensure data doesn't cause unnecessary re-renders
+  const memoizedData = useMemo(() => data, [data]);
 
   const { table } = useDataTable({
-    data,
+    data: memoizedData,
     columns,
-    pageCount,
+    pageCount: Math.ceil(totalItems / 10),
     shallow: false,
-    debounceMs: 500
+    debounceMs: 500,
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10
+      }
+    }
   });
 
   return (

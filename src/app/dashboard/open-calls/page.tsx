@@ -21,15 +21,18 @@ export default async function Page({ searchParams }: pageProps) {
 
   return (
     <PageContainer>
-      <div className='space-y-4'>
-        <div className='flex items-start justify-between'>
+      <div className='w-full max-w-full min-w-0 space-y-4'>
+        <div className='flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <Heading
             title='Open Calls'
             description='Manage and track open funding opportunities.'
           />
           <Link
             href='/dashboard/open-calls/new'
-            className={buttonVariants({ variant: 'default' })}
+            className={
+              buttonVariants({ variant: 'default' }) +
+              ' w-full shrink-0 justify-center whitespace-nowrap sm:w-auto'
+            }
           >
             <Plus className='mr-2 h-4 w-4' /> Add New
           </Link>

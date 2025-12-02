@@ -21,22 +21,7 @@ export const navItems: NavItem[] = [
     shortcut: ['d', 'd'],
     items: [] // Empty array as there are no child items for Dashboard
   },
-  {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: [] // No child items
-  },
+
   {
     title: 'Open Calls',
     url: '/dashboard/open-calls',
@@ -50,6 +35,22 @@ export const navItems: NavItem[] = [
     url: '/dashboard/bilateral-engagements',
     icon: 'user', // Using user icon for relationships
     shortcut: ['b', 'e'],
+    isActive: false,
+    items: []
+  },
+  {
+    title: 'Opportunities',
+    url: '/dashboard/opportunities',
+    icon: 'search', // Using search icon for finding opportunities
+    shortcut: ['o', 'p'],
+    isActive: false,
+    items: []
+  },
+  {
+    title: 'Team',
+    url: '/dashboard/team',
+    icon: 'user',
+    shortcut: ['t', 'm'],
     isActive: false,
     items: []
   }
@@ -102,6 +103,52 @@ export const recentSalesData: SaleUser[] = [
     name: 'Sofia Davis',
     email: 'sofia.davis@email.com',
     amount: '+$39.00',
+    image: 'https://api.slingacademy.com/public/sample-users/5.png',
+    initials: 'SD'
+  }
+];
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  image: string;
+  initials: string;
+}
+
+export const dummyUsers: User[] = [
+  {
+    id: 1,
+    name: 'Olivia Martin',
+    email: 'olivia.martin@email.com',
+    image: 'https://api.slingacademy.com/public/sample-users/1.png',
+    initials: 'OM'
+  },
+  {
+    id: 2,
+    name: 'Jackson Lee',
+    email: 'jackson.lee@email.com',
+    image: 'https://api.slingacademy.com/public/sample-users/2.png',
+    initials: 'JL'
+  },
+  {
+    id: 3,
+    name: 'Isabella Nguyen',
+    email: 'isabella.nguyen@email.com',
+    image: 'https://api.slingacademy.com/public/sample-users/3.png',
+    initials: 'IN'
+  },
+  {
+    id: 4,
+    name: 'William Kim',
+    email: 'will@email.com',
+    image: 'https://api.slingacademy.com/public/sample-users/4.png',
+    initials: 'WK'
+  },
+  {
+    id: 5,
+    name: 'Sofia Davis',
+    email: 'sofia.davis@email.com',
     image: 'https://api.slingacademy.com/public/sample-users/5.png',
     initials: 'SD'
   }

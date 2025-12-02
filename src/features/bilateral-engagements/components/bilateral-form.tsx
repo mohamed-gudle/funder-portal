@@ -2,11 +2,13 @@
 
 import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
+import { FormSelectAvatar } from '@/components/forms/form-select-avatar';
 import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { fakeBilateralEngagements } from '@/constants/mock-modules';
+import { dummyUsers } from '@/constants/data';
 import { BilateralEngagement } from '@/types/modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -131,17 +133,30 @@ export default function BilateralForm({
               label='Engagement Type'
               placeholder='e.g. Early Discussion'
             />
-            <FormInput
+            <FormSelectAvatar
               control={form.control}
               name='priorityProject'
-              label='Priority Project'
-              placeholder='Linked project'
+              label='Project Owner'
+              placeholder='Select project owner'
+              description='The team member responsible for this project'
+              options={dummyUsers.map((user) => ({
+                label: user.name,
+                value: user.name,
+                image: user.image,
+                initials: user.initials
+              }))}
             />
-            <FormInput
+            <FormSelectAvatar
               control={form.control}
               name='internalOwner'
               label='Internal Owner'
               placeholder='Assign an owner'
+              options={dummyUsers.map((user) => ({
+                label: user.name,
+                value: user.name,
+                image: user.image,
+                initials: user.initials
+              }))}
             />
             <FormSelect
               control={form.control}
@@ -171,6 +186,7 @@ export default function BilateralForm({
               name='confidenceLevel'
               label='Confidence Level'
               placeholder='Select confidence'
+              description='How confident are you in securing this funding?'
               options={[
                 { label: 'Low', value: 'Low' },
                 { label: 'Medium', value: 'Medium' },

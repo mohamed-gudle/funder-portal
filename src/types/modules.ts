@@ -65,3 +65,27 @@ export type BilateralEngagement = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type Opportunity = {
+  title: string;
+  organization: string;
+  description: string;
+  amount: string;
+  deadline: string;
+  url: string;
+  energy_sector: string;
+  eligibility: string;
+  relevance_score: number;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  speciality: string;
+  position: string;
+  profilePhoto: string; // URL
+  createdAt: string;
+  updatedAt: string;
+};

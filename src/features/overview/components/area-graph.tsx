@@ -1,7 +1,7 @@
 'use client';
 
 import { IconTrendingUp } from '@tabler/icons-react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
   Card,
@@ -17,37 +17,59 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 }
-];
+import React from 'react';
+import { fakeOpenCalls } from '@/constants/mock-modules';
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors'
-  },
-  desktop: {
-    label: 'Desktop',
-    color: 'var(--primary)'
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--primary)'
+  count: {
+    label: 'Number of Calls',
+    color: 'var(--accent)'
   }
 } satisfies ChartConfig;
 
+async function getApplicationStatusData() {
+  const allCalls = await fakeOpenCalls.getAll({});
+
+  const statusCounts = allCalls.reduce(
+    (acc, call) => {
+      const existing = acc.find((item) => item.status === call.status);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        acc.push({ status: call.status, count: 1 });
+      }
+      return acc;
+    },
+    [] as Array<{ status: string; count: number }>
+  );
+
+  return statusCounts.sort((a, b) => b.count - a.count);
+}
+
 export function AreaGraph() {
+  const [chartData, setChartData] = React.useState<
+    Array<{ status: string; count: number }>
+  >([]);
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+    getApplicationStatusData().then(setChartData);
+  }, []);
+
+  if (!isClient || chartData.length === 0) {
+    return null;
+  }
+
+  const totalCalls = chartData.reduce((sum, item) => sum + item.count, 0);
+  const topStatus = chartData[0];
+
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardTitle>Applications by Status</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Distribution of open calls across application pipeline stages
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -55,7 +77,7 @@ export function AreaGraph() {
           config={chartConfig}
           className='aspect-auto h-[250px] w-full'
         >
-          <AreaChart
+          <BarChart
             data={chartData}
             margin={{
               left: 12,
@@ -63,70 +85,43 @@ export function AreaGraph() {
             }}
           >
             <defs>
-              <linearGradient id='fillDesktop' x1='0' y1='0' x2='0' y2='1'>
+              <linearGradient id='fillBar' x1='0' y1='0' x2='0' y2='1'>
+                <stop offset='0%' stopColor='var(--accent)' stopOpacity={0.8} />
                 <stop
-                  offset='5%'
-                  stopColor='var(--color-desktop)'
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset='95%'
-                  stopColor='var(--color-desktop)'
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id='fillMobile' x1='0' y1='0' x2='0' y2='1'>
-                <stop
-                  offset='5%'
-                  stopColor='var(--color-mobile)'
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset='95%'
-                  stopColor='var(--color-mobile)'
-                  stopOpacity={0.1}
+                  offset='100%'
+                  stopColor='var(--accent)'
+                  stopOpacity={0.2}
                 />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey='month'
+              dataKey='status'
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => value.slice(0, 3)}
+              angle={-45}
+              textAnchor='end'
+              height={100}
             />
+            <YAxis />
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator='dot' />}
+              cursor={{ fill: 'var(--primary)', opacity: 0.1 }}
+              content={<ChartTooltipContent />}
             />
-            <Area
-              dataKey='mobile'
-              type='natural'
-              fill='url(#fillMobile)'
-              stroke='var(--color-mobile)'
-              stackId='a'
-            />
-            <Area
-              dataKey='desktop'
-              type='natural'
-              fill='url(#fillDesktop)'
-              stroke='var(--color-desktop)'
-              stackId='a'
-            />
-          </AreaChart>
+            <Bar dataKey='count' fill='url(#fillBar)' radius={[4, 4, 0, 0]} />
+          </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter>
         <div className='flex w-full items-start gap-2 text-sm'>
           <div className='grid gap-2'>
             <div className='flex items-center gap-2 leading-none font-medium'>
-              Trending up by 5.2% this month{' '}
+              {topStatus.status} has the most calls ({topStatus.count}){' '}
               <IconTrendingUp className='h-4 w-4' />
             </div>
             <div className='text-muted-foreground flex items-center gap-2 leading-none'>
-              January - June 2024
+              Total of {totalCalls} open calls across all stages
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardHeader,
@@ -6,65 +6,67 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
+import { fakeOpenCalls } from '@/constants/mock-modules';
 
-const salesData = [
-  {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
-  },
-  {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
-  },
-  {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
-  },
-  {
-    name: 'William Kim',
-    email: 'will@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
-  },
-  {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
-  }
-];
+async function getRecentCalls() {
+  const allCalls = await fakeOpenCalls.getAll({});
+  return allCalls.slice(0, 5);
+}
 
-export function RecentSales() {
+const statusColors: Record<
+  string,
+  'default' | 'secondary' | 'outline' | 'destructive'
+> = {
+  Intake: 'default',
+  Reviewing: 'secondary',
+  'Application preparation': 'default',
+  'Application submitted': 'outline',
+  'Go/No-Go': 'secondary',
+  Outcome: 'destructive'
+};
+
+export async function RecentSales() {
+  const recentCalls = await getRecentCalls();
+
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Recent Open Calls</CardTitle>
+        <CardDescription>
+          Latest grant opportunities you're tracking.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='space-y-8'>
-          {salesData.map((sale, index) => (
-            <div key={index} className='flex items-center'>
-              <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
-                <AvatarFallback>{sale.fallback}</AvatarFallback>
-              </Avatar>
-              <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
-                <p className='text-muted-foreground text-sm'>{sale.email}</p>
+        <div className='space-y-6'>
+          {recentCalls.map((call) => (
+            <div key={call.id} className='flex flex-col gap-2'>
+              <div className='flex items-start justify-between gap-2'>
+                <div className='flex-1 space-y-1'>
+                  <p className='line-clamp-1 text-sm leading-none font-medium'>
+                    {call.title}
+                  </p>
+                  <p className='text-muted-foreground text-xs'>{call.funder}</p>
+                </div>
               </div>
-              <div className='ml-auto font-medium'>{sale.amount}</div>
+              <div className='flex items-center justify-between'>
+                <Badge variant='outline' className='text-xs'>
+                  {call.sector}
+                </Badge>
+                <Badge
+                  variant={statusColors[call.status] || 'default'}
+                  className='text-xs'
+                >
+                  {call.status}
+                </Badge>
+              </div>
+              <div className='flex items-center justify-between text-xs'>
+                <span className='text-muted-foreground'>
+                  Budget: {call.budget}
+                </span>
+                <span className='text-muted-foreground'>
+                  {call.internalOwner}
+                </span>
+              </div>
             </div>
           ))}
         </div>

@@ -3,20 +3,16 @@
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
-import { BilateralEngagement } from '@/types/modules';
+import { TeamMember } from '@/types/modules';
 import { columns } from './columns';
 import { useMemo } from 'react';
 
-interface BilateralTableProps {
-  data: BilateralEngagement[];
+interface TeamTableProps {
+  data: TeamMember[];
   totalItems: number;
 }
 
-export default function BilateralTable({
-  data,
-  totalItems
-}: BilateralTableProps) {
-  // Use useMemo to ensure data doesn't cause unnecessary re-renders
+export default function TeamTable({ data, totalItems }: TeamTableProps) {
   const memoizedData = useMemo(() => data, [data]);
 
   const { table } = useDataTable({
