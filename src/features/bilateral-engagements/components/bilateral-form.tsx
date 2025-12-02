@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { fakeBilateralEngagements } from '@/constants/mock-modules';
-import { dummyUsers } from '@/constants/data';
 import { BilateralEngagement } from '@/types/modules';
+import { useTeamMembers } from '@/hooks/use-team-members';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -45,6 +45,7 @@ export default function BilateralForm({
   pageTitle: string;
 }) {
   const router = useRouter();
+  const { teamMembers } = useTeamMembers();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -139,24 +140,14 @@ export default function BilateralForm({
               label='Project Owner'
               placeholder='Select project owner'
               description='The team member responsible for this project'
-              options={dummyUsers.map((user) => ({
-                label: user.name,
-                value: user.name,
-                image: user.image,
-                initials: user.initials
-              }))}
+              options={teamMembers}
             />
             <FormSelectAvatar
               control={form.control}
               name='internalOwner'
               label='Internal Owner'
               placeholder='Assign an owner'
-              options={dummyUsers.map((user) => ({
-                label: user.name,
-                value: user.name,
-                image: user.image,
-                initials: user.initials
-              }))}
+              options={teamMembers}
             />
             <FormSelect
               control={form.control}

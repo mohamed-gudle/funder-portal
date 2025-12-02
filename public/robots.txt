@@ -1,0 +1,12 @@
+# robots.txt for Funders Portal
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow authentication and private routes
+Disallow: /api/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: https://fundersportal.com/sitemap.xml

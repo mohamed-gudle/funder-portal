@@ -13,7 +13,9 @@ type pageProps = {
 };
 
 export const metadata = {
-  title: 'Dashboard: Open Calls'
+  title: 'Open Calls',
+  description:
+    'Manage and track open funding opportunities. Browse available grants, submit applications, and monitor your funding pipeline.'
 };
 
 export default async function Page({ searchParams }: pageProps) {

@@ -1,174 +1,262 @@
-<p align="center">
-<h1 align="center">Admin Dashboard Starter Template with Next.js &amp; Shadcn UI</h1>
+# Funders Portal
 
-<div align="center">Built with the Next.js 16 App Router, Tailwind CSS &amp; Shadcn UI components</div>
+> A comprehensive platform for organizations to manage funding applications, bilateral engagements, and discover new opportunities.
 
-<br />
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8)](https://tailwindcss.com/)
 
-<div align="center">
-  <a href="https://dub.sh/shadcn-dashboard"><strong>View Demo</strong></a>
-</div>
-<br />
-<div align="center">
-  <img src="/public/shadcn-dashboard.png" alt="Shadcn Dashboard Cover" style="max-width: 100%; border-radius: 8px;" />
-</div>
+## 🎯 Overview
 
-## Overview
+**Funders Portal** is a modern, feature-rich platform designed to streamline the entire funding lifecycle for organizations. Whether you're managing grant applications, tracking bilateral partnerships, or discovering new funding opportunities, Funders Portal provides the tools you need to succeed.
 
-This is an **admin dashboard starter template** built with **Next.js 16, Shadcn UI, and Tailwind CSS**.
+Built with cutting-edge technologies including Next.js 16, React 19, and Tailwind CSS 4, the platform offers a seamless, responsive experience optimized for modern workflows.
 
-It gives you a production-ready **dashboard UI** with authentication, charts, tables, forms, and a feature-based folder structure, perfect for **SaaS apps, internal tools, and admin panels**.
+### Key Capabilities
 
-### Tech Stack
+- **📋 Funding Application Management** - Track open calls, manage submissions, and monitor application status
+- **🤝 Bilateral Engagement Tracking** - Maintain relationships with funders and track partnership conversations
+- **🔍 Opportunity Discovery** - Search and discover new funding programs tailored to your organization
+- **👥 Team Collaboration** - Coordinate team efforts with role-based access control
+- **📊 Analytics Dashboard** - Visualize your funding pipeline and engagement metrics
+- **🔐 Secure Authentication** - Enterprise-grade authentication powered by Clerk
 
-This template uses the following stack:
+## 🚀 Quick Start
 
-- Framework - [Next.js 16](https://nextjs.org/16)
-- Language - [TypeScript](https://www.typescriptlang.org)
-- Auth - [Clerk](https://go.clerk.com/ILdYhn7)
-- Error tracking - [Sentry](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy26q2-nextjs&utm_content=github-banner-project-tryfree)
-- Styling - [Tailwind CSS v4](https://tailwindcss.com)
-- Components - [Shadcn-ui](https://ui.shadcn.com)
-- Schema Validations - [Zod](https://zod.dev)
-- State Management - [Zustand](https://zustand-demo.pmnd.rs)
-- Search params state manager - [Nuqs](https://nuqs.47ng.com/)
-- Tables - [Tanstack Data Tables](https://ui.shadcn.com/docs/components/data-table) • [Dice table](https://www.diceui.com/docs/components/data-table)
-- Forms - [React Hook Form](https://ui.shadcn.com/docs/components/form)
-- Command+k interface - [kbar](https://kbar.vercel.app/)
-- Linting - [ESLint](https://eslint.org)
-- Pre-commit Hooks - [Husky](https://typicode.github.io/husky/)
-- Formatting - [Prettier](https://prettier.io)
+### Prerequisites
 
-_If you are looking for a Tanstack start dashboard template, here is the [repo](https://git.new/tanstack-start-dashboard)._
+- Node.js 18+ (recommended: use the version specified in `.nvmrc`)
+- npm, yarn, pnpm, or bun package manager
+- A Clerk account for authentication ([Sign up here](https://clerk.com))
 
-## Features
+### Installation
 
-- 🧱 Pre-built **admin dashboard layout** (sidebar, header, content area)
+1. **Clone the repository**
 
-- 📊 **Analytics overview** page with cards and charts
+   ```bash
+   git clone https://github.com/your-org/funders-portal.git
+   cd funders-portal
+   ```
 
-- 📋 **Data tables** with server-side search, filter & pagination
+2. **Install dependencies**
 
-- 🔐 **Authentication** & user management via Clerk
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-- 🧩 **Shadcn UI components** with Tailwind CSS styling
+3. **Set up environment variables**
 
-- 🧠 Feature-based folder structure for scalable projects
+   ```bash
+   cp env.example.txt .env.local
+   ```
 
-- ⚙️ Ready for **SaaS dashboards**, internal tools, and client admin panels
+   Then edit `.env.local` with your configuration:
 
-## Use Cases
+   ```env
+   # Application
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-You can use this Next.js + Shadcn UI dashboard starter to build:
+   # Clerk Authentication
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+   CLERK_SECRET_KEY=your_clerk_secret_key
 
-- SaaS admin dashboards
+   # Sentry Error Tracking (Optional)
+   NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+   NEXT_PUBLIC_SENTRY_ORG=your_org
+   NEXT_PUBLIC_SENTRY_PROJECT=your_project
+   ```
 
-- Internal tools & operations panels
+4. **Run the development server**
 
-- Analytics dashboards
+   ```bash
+   npm run dev
+   ```
 
-- Client project admin panels
+5. **Open your browser**
 
-- Boilerplate for new Next.js admin UI projects
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-## Pages
+## 📚 Documentation
 
-| Pages                                                                                                                                                                  | Specifications                                                                                                                                                                                                                                                          |
-| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Signup / Signin](https://go.clerk.com/ILdYhn7)                                                                                                                        | Authentication with **Clerk** provides secure authentication and user management with multiple sign-in options including passwordless authentication, social logins, and enterprise SSO - all designed to enhance security while delivering a seamless user experience. |
-| [Dashboard Overview](https://shadcn-dashboard.kiranism.dev/dashboard)                                                                                                  | Cards with Recharts graphs for analytics. Parallel routes in the overview sections feature independent loading, error handling, and isolated component rendering.                                                                                                       |
-| [Product List (Table)](https://shadcn-dashboard.kiranism.dev/dashboard/product)                                                                                        | Tanstack tables with server side searching, filter, pagination by Nuqs which is a Type-safe search params state manager in nextjs                                                                                                                                       |
-| [Create Product Form](https://shadcn-dashboard.kiranism.dev/dashboard/product/new)                                                                                     | A Product Form with shadcn form (react-hook-form + zod).                                                                                                                                                                                                                |
-| [Profile](https://shadcn-dashboard.kiranism.dev/dashboard/profile)                                                                                                     | Clerk's full-featured account management UI that allows users to manage their profile and security settings                                                                                                                                                             |
-| [Kanban Board](https://shadcn-dashboard.kiranism.dev/dashboard/kanban)                                                                                                 | A Drag n Drop task management board with dnd-kit and zustand to persist state locally.                                                                                                                                                                                  |
-| [Not Found](https://shadcn-dashboard.kiranism.dev/dashboard/notfound)                                                                                                  | Not Found Page Added in the root level                                                                                                                                                                                                                                  |
-| [Global Error](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy26q2-nextjs&utm_content=github-banner-project-tryfree) | A centralized error page that captures and displays errors across the application. Integrated with **Sentry** to log errors, provide detailed reports, and enable replay functionality for better debugging.                                                            |
+- **[Architecture Overview](./docs/ARCHITECTURE.md)** - System design and technical architecture
+- **[Features Guide](./docs/FEATURES.md)** - Detailed feature descriptions and usage
+- **[API Documentation](./docs/API_DOCUMENTATION.md)** - External API integrations
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Contributing](./docs/CONTRIBUTING.md)** - Development guidelines and workflows
 
-## Feature based organization
+## 🏗️ Tech Stack
 
-```plaintext
-src/
-├── app/ # Next.js App Router directory
-│ ├── (auth)/ # Auth route group
-│ │ ├── (signin)/
-│ ├── (dashboard)/ # Dashboard route group
-│ │ ├── layout.tsx
-│ │ ├── loading.tsx
-│ │ └── page.tsx
-│ └── api/ # API routes
-│
-├── components/ # Shared components
-│ ├── ui/ # UI components (buttons, inputs, etc.)
-│ └── layout/ # Layout components (header, sidebar, etc.)
-│
-├── features/ # Feature-based modules
-│ ├── feature/
-│ │ ├── components/ # Feature-specific components
-│ │ ├── actions/ # Server actions
-│ │ ├── schemas/ # Form validation schemas
-│ │ └── utils/ # Feature-specific utilities
-│ │
-├── lib/ # Core utilities and configurations
-│ ├── auth/ # Auth configuration
-│ ├── db/ # Database utilities
-│ └── utils/ # Shared utilities
-│
-├── hooks/ # Custom hooks
-│ └── use-debounce.ts
-│
-├── stores/ # Zustand stores
-│ └── dashboard-store.ts
-│
-└── types/ # TypeScript types
-└── index.ts
-```
+### Core Framework
+- **[Next.js 16](https://nextjs.org/)** - React framework with App Router
+- **[React 19](https://react.dev/)** - UI library
+- **[TypeScript 5.7](https://www.typescriptlang.org/)** - Type safety
 
-## Getting Started
+### Styling & UI
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Shadcn UI](https://ui.shadcn.com/)** - Re-usable component library
+- **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible components
+- **[Lucide React](https://lucide.dev/)** - Icon library
+- **[Motion](https://motion.dev/)** - Animation library
 
-> [!NOTE]  
-> This admin dashboard starter uses **Next.js 16 (App Router)** with **React 19** and **Shadcn UI**. Follow these steps to run it locally:
+### State & Data Management
+- **[Zustand](https://zustand-demo.pmnd.rs/)** - Lightweight state management
+- **[React Hook Form](https://react-hook-form.com/)** - Form handling
+- **[Zod](https://zod.dev/)** - Schema validation
+- **[Nuqs](https://nuqs.47ng.com/)** - Type-safe URL search params
+- **[TanStack Table](https://tanstack.com/table/)** - Powerful table component
 
-Clone the repo:
+### Authentication & Monitoring
+- **[Clerk](https://clerk.com/)** - Authentication and user management
+- **[Sentry](https://sentry.io/)** - Error tracking and monitoring
+
+### Development Tools
+- **[ESLint](https://eslint.org/)** - Code linting
+- **[Prettier](https://prettier.io/)** - Code formatting
+- **[Husky](https://typicode.github.io/husky/)** - Git hooks
+- **[lint-staged](https://github.com/okonet/lint-staged)** - Pre-commit linting
+
+## 📁 Project Structure
 
 ```
-git clone https://github.com/Kiranism/next-shadcn-dashboard-starter.git
+funders-portal/
+├── src/
+│   ├── app/                      # Next.js App Router
+│   │   ├── (auth)/              # Authentication routes
+│   │   ├── dashboard/           # Dashboard routes
+│   │   │   ├── open-calls/      # Open funding calls
+│   │   │   ├── bilateral-engagements/  # Partnership tracking
+│   │   │   ├── opportunities/   # Funding discovery
+│   │   │   ├── team/            # Team management
+│   │   │   └── overview/        # Analytics dashboard
+│   │   ├── layout.tsx           # Root layout
+│   │   └── sitemap.ts           # Dynamic sitemap
+│   │
+│   ├── components/              # Shared components
+│   │   ├── ui/                  # UI primitives (Shadcn)
+│   │   ├── layout/              # Layout components
+│   │   └── forms/               # Form components
+│   │
+│   ├── features/                # Feature modules
+│   │   ├── open-calls/          # Open calls feature
+│   │   ├── bilateral-engagements/  # Bilateral feature
+│   │   ├── opportunities/       # Opportunities feature
+│   │   └── team/                # Team feature
+│   │
+│   ├── lib/                     # Core utilities
+│   │   ├── metadata.ts          # SEO metadata utilities
+│   │   ├── utils.ts             # Helper functions
+│   │   └── searchparams.ts      # Search params cache
+│   │
+│   ├── hooks/                   # Custom React hooks
+│   ├── stores/                  # Zustand stores
+│   ├── types/                   # TypeScript types
+│   └── constants/               # App constants
+│
+├── public/                      # Static assets
+├── docs/                        # Documentation
+└── .github/                     # GitHub configuration
+
 ```
 
-- `bun install`
-- Create a `.env.local` file by copying the example environment file:
-  `cp env.example.txt .env.local`
-- Add the required environment variables to the `.env.local` file.
-- `bun run dev`
+## 🎨 Key Features
 
-##### Environment Configuration Setup
+### Funding Application Management
+Manage the complete lifecycle of funding applications from discovery to award. Track open calls, submit applications, monitor review status, and manage required documentation.
 
-To configure the environment for this project, refer to the `env.example.txt` file. This file contains the necessary environment variables required for authentication and error tracking.
+### Bilateral Engagement Tracking
+Build and maintain relationships with funding partners. Track conversations, schedule follow-ups, and monitor engagement progression through customizable pipelines.
 
-You should now be able to access the application at http://localhost:3000.
+### Opportunity Discovery
+Discover funding opportunities using our integrated Program Finder. Search across multiple funding sources, filter by criteria, and receive personalized recommendations.
 
-> [!WARNING]
-> After cloning or forking the repository, be cautious when pulling or syncing with the latest changes, as this may result in breaking conflicts.
+### Team Collaboration
+Invite team members, assign roles, and collaborate on applications. Track team activity and ensure everyone stays aligned on funding priorities.
 
-Cheers! 🥂
+### Analytics & Insights
+Visualize your funding pipeline with beautiful dashboards. Track metrics including application success rates, funding received, and partnership health.
 
-<!--
+## 🔧 Available Scripts
 
-SEO keywords:
+```bash
+# Development
+npm run dev          # Start development server
 
-nextjs admin dashboard, nextjs dashboard template, shadcn ui dashboard,
+# Building
+npm run build        # Build for production
+npm start            # Start production server
 
-admin dashboard starter, dashboard ui template, nextjs shadcn admin panel,
+# Code Quality
+npm run lint         # Run ESLint  
+npm run lint:fix     # Fix linting issues
+npm run lint:strict  # Strict linting with warnings as errors
+npm run format       # Format code with Prettier
+npm run format:check # Check code formatting
 
-react admin dashboard, tailwind css admin dashboard
+# Git Hooks
+npm run prepare      # Set up Husky git hooks
+```
 
--->
+## 🌍 Environment Variables
 
-## Star History
+Create a `.env.local` file with the following variables:
 
-<a href="https://www.star-history.com/#Kiranism/next-shadcn-dashboard-starter&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Kiranism/next-shadcn-dashboard-starter&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Kiranism/next-shadcn-dashboard-starter&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Kiranism/next-shadcn-dashboard-starter&type=date&legend=top-left" />
- </picture>
-</a>
+```env
+# Required
+NEXT_PUBLIC_APP_URL=                    # Your application URL
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=      # Clerk publishable key
+CLERK_SECRET_KEY=                       # Clerk secret key
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/auth/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/auth/sign-up
+
+# Optional - Error Tracking
+NEXT_PUBLIC_SENTRY_DSN=                 # Sentry DSN
+NEXT_PUBLIC_SENTRY_ORG=                 # Sentry organization
+NEXT_PUBLIC_SENTRY_PROJECT=             # Sentry project
+# Set to "true" to disable Sentry
+NEXT_PUBLIC_SENTRY_DISABLED=false
+```
+
+See `env.example.txt` for a complete list of environment variables.
+
+## 🚢 Deployment
+
+We recommend deploying to [Vercel](https://vercel.com) for the best Next.js experience:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/funders-portal)
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines.
+
+### Development Workflow
+
+1. Create a feature branch: `git checkout -b feature/your-feature`
+2. Make your changes
+3. Run tests and linting: `npm run lint`
+4. Commit with conventional commits: `git commit -m "feat: add new feature"`
+5. Push and create a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter) template
+- UI components from [Shadcn UI](https://ui.shadcn.com/)
+- Authentication by [Clerk](https://clerk.com/)
+
+## 📞 Support
+
+- 📧 Email: support@fundersportal.com
+- 💬 Discussions: [GitHub Discussions](https://github.com/your-org/funders-portal/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/your-org/funders-portal/issues)
+
+---
+
+<p align="center">Made with ❤️ by the Funders Portal Team</p>

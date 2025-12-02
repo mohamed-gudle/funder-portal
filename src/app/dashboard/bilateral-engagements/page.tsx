@@ -13,7 +13,9 @@ type pageProps = {
 };
 
 export const metadata = {
-  title: 'Dashboard: Bilateral Engagements'
+  title: 'Bilateral Engagements',
+  description:
+    'Track bilateral funding engagements and partnership conversations. Manage relationships with funders and monitor engagement progress.'
 };
 
 export default async function Page({ searchParams }: pageProps) {

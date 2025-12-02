@@ -9,7 +9,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { fakeTeamMembers } from '@/constants/mock-modules';
 import { TeamMember } from '@/types/modules';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -28,7 +27,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await fakeTeamMembers.remove(data.id);
+      const res = await fetch(`/api/team/${data.id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed to delete');
       toast.success('Team member deleted successfully');
       router.refresh();
     } catch (error) {

@@ -1,10 +1,10 @@
 'use client';
 
 import { FormInput } from '@/components/forms/form-input';
+import { FormSelect } from '@/components/forms/form-select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { fakeTeamMembers } from '@/constants/mock-modules';
 import { TeamMember } from '@/types/modules';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -54,10 +54,20 @@ export default function TeamMemberForm({
       };
 
       if (initialData) {
-        await fakeTeamMembers.update(initialData.id, data);
+        const res = await fetch(`/api/team/${initialData.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Failed to update');
         toast.success('Team member updated successfully');
       } else {
-        await fakeTeamMembers.add(data);
+        const res = await fetch('/api/team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Failed to create');
         toast.success('Team member created successfully');
       }
       router.push('/dashboard/team');
@@ -103,25 +113,47 @@ export default function TeamMemberForm({
               placeholder='Enter phone number'
               required
             />
-            <FormInput
+            <FormSelect
               control={form.control}
               name='position'
               label='Position'
-              placeholder='Enter job position'
+              placeholder='Select position'
               required
+              options={[
+                { label: 'Executive Director', value: 'Executive Director' },
+                { label: 'Program Manager', value: 'Program Manager' },
+                {
+                  label: 'Senior Program Officer',
+                  value: 'Senior Program Officer'
+                },
+                { label: 'Program Officer', value: 'Program Officer' },
+                { label: 'Technical Advisor', value: 'Technical Advisor' },
+                { label: 'Finance Manager', value: 'Finance Manager' },
+                { label: 'Project Coordinator', value: 'Project Coordinator' },
+                {
+                  label: 'Communications Officer',
+                  value: 'Communications Officer'
+                }
+              ]}
             />
-            <FormInput
+            <FormSelect
               control={form.control}
               name='speciality'
               label='Speciality'
-              placeholder='Enter area of speciality'
+              placeholder='Select area of expertise'
               required
-            />
-            <FormInput
-              control={form.control}
-              name='profilePhoto'
-              label='Profile Photo URL'
-              placeholder='https://...'
+              options={[
+                { label: 'Energy', value: 'Energy' },
+                {
+                  label: 'Water and Sanitation',
+                  value: 'Water and Sanitation'
+                },
+                { label: 'Agriculture', value: 'Agriculture' },
+                { label: 'Clean Cooking', value: 'Clean Cooking' },
+                { label: 'Health', value: 'Health' },
+                { label: 'Education', value: 'Education' },
+                { label: 'Climate Change', value: 'Climate Change' }
+              ]}
             />
           </div>
 

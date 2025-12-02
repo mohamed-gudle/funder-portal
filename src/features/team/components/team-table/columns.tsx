@@ -35,7 +35,7 @@ export const columns: ColumnDef<TeamMember>[] = [
         <div className='relative h-10 w-10 overflow-hidden rounded-full'>
           {photoUrl ? (
             <Image
-              src={photoUrl}
+              src='https://api.slingacademy.com/public/sample-photos/avatar-1.png'
               alt={row.original.name}
               fill
               className='object-cover'

@@ -1,10 +1,10 @@
 {
-  "name": "next-shadcn-dashboard-starter",
+  "name": "funders-portal",
   "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "Kiran",
-    "url": "https://github.com/Kiranism"
+    "name": "Funders Portal Team",
+    "url": "https://fundersportal.com"
   },
   "scripts": {
     "dev": "next dev",
@@ -72,10 +72,12 @@
     "kbar": "^0.1.0-beta.45",
     "lucide-react": "^0.476.0",
     "match-sorter": "^8.0.0",
+    "mongoose": "^9.0.0",
     "motion": "^11.17.0",
     "next": "^16.0.1",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.7.15",
+    "nodemailer": "^7.0.11",
     "nuqs": "^2.4.1",
     "postcss": "8.4.49",
     "react": "^19.2.0",
@@ -86,6 +88,7 @@
     "react-resizable-panels": "^2.1.7",
     "react-responsive": "^10.0.0",
     "recharts": "^2.15.1",
+    "resend": "^6.5.2",
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
     "sort-by": "^1.2.0",
@@ -101,6 +104,7 @@
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",
     "@types/node": "22.10.2",
+    "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@types/sort-by": "^1.2.3",

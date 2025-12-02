@@ -1,0 +1,30 @@
+{
+    "name": "Funders Portal",
+    "short_name": "Funders Portal",
+    "description": "Comprehensive platform for organizations to manage funding applications, bilateral engagements, and discover new opportunities",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "any",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "business",
+        "productivity",
+        "finance"
+    ],
+    "lang": "en-US",
+    "dir": "ltr"
+}
