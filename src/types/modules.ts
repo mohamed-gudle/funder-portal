@@ -85,7 +85,7 @@ export type TeamMember = {
   phoneNumber: string;
   speciality: string;
   position: string;
-  profilePhoto: string; // URL
+  profilePhoto?: string; // Added by API from Clerk
   createdAt: string;
   updatedAt: string;
 };

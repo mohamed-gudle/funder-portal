@@ -7,7 +7,6 @@ import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { fakeBilateralEngagements } from '@/constants/mock-modules';
 import { BilateralEngagement } from '@/types/modules';
 import { useTeamMembers } from '@/hooks/use-team-members';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -81,16 +80,43 @@ export default function BilateralForm({
           : undefined
       };
 
+      const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/bilateral-engagements`;
+
       if (initialData) {
-        await fakeBilateralEngagements.update(initialData.id, data);
+        // Update existing engagement
+        const response = await fetch(`${apiUrl}/${initialData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update engagement');
+        }
+
         toast.success('Engagement updated successfully');
       } else {
-        await fakeBilateralEngagements.add(data);
+        // Create new engagement
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create engagement');
+        }
+
         toast.success('Engagement created successfully');
       }
       router.push('/dashboard/bilateral-engagements');
       router.refresh();
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Something went wrong');
     }
   }

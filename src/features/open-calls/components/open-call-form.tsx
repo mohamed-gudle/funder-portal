@@ -8,7 +8,6 @@ import { FormTextarea } from '@/components/forms/form-textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import { fakeOpenCalls } from '@/constants/mock-modules';
 import { OpenCall } from '@/types/modules';
 import { useTeamMembers } from '@/hooks/use-team-members';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -82,16 +81,43 @@ export default function OpenCallForm({
         internalOwner: values.internalOwner || ''
       };
 
+      const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/open-calls`;
+
       if (initialData) {
-        await fakeOpenCalls.update(initialData.id, data);
+        // Update existing open call
+        const response = await fetch(`${apiUrl}/${initialData.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update open call');
+        }
+
         toast.success('Open call updated successfully');
       } else {
-        await fakeOpenCalls.add(data);
+        // Create new open call
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create open call');
+        }
+
         toast.success('Open call created successfully');
       }
       router.push('/dashboard/open-calls');
       router.refresh();
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Something went wrong');
     }
   }

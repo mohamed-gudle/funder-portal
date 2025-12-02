@@ -8,7 +8,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { fakeOpenCalls } from '@/constants/mock-modules';
 import { OpenCall } from '@/types/modules';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -27,10 +26,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await fakeOpenCalls.remove(data.id);
+      const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/open-calls/${data.id}`;
+      const response = await fetch(apiUrl, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete open call');
+      }
+
       toast.success('Open call deleted successfully');
       router.refresh();
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Something went wrong');
     } finally {
       setLoading(false);

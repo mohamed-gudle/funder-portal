@@ -52,7 +52,7 @@ export default async function RootLayout({
       </head>
       <body
         className={cn(
-          'overflow-hidden overscroll-none bg-transparent font-sans antialiased',
+          'overscroll-none bg-transparent font-sans antialiased',
           activeThemeValue ? `theme-${activeThemeValue}` : '',
           isScaled ? 'theme-scaled' : '',
           fontVariables

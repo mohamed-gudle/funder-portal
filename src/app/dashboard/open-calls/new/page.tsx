@@ -8,9 +8,7 @@ export const metadata = {
 export default function Page() {
   return (
     <PageContainer scrollable={true}>
-      <div className='space-y-4'>
-        <OpenCallForm initialData={null} pageTitle='Create Open Call' />
-      </div>
+      <OpenCallForm initialData={null} pageTitle='Create Open Call' />
     </PageContainer>
   );
 }

@@ -24,7 +24,7 @@ export default async function TeamListingPage({ searchParams }: ParamsProps) {
 
   return (
     <PageContainer>
-      <div className='space-y-4'>
+      <div className='w-full max-w-full min-w-0'>
         <div className='flex items-start justify-between'>
           <Heading
             title={`Team Members (${totalItems})`}

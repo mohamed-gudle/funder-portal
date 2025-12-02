@@ -13,7 +13,11 @@ export const searchParams = {
   categories: parseAsString, // Categories filter
   name: parseAsString,
   gender: parseAsString,
-  category: parseAsString
+  category: parseAsString,
+  // Open Calls and Bilateral Engagements filters
+  status: parseAsString, // Open Call status filter
+  stage: parseAsString, // Bilateral Engagement stage filter
+  sector: parseAsString // Sector filter for both
   // advanced filter
   // filters: getFiltersStateParser().withDefault([]),
   // joinOperator: parseAsStringEnum(['and', 'or']).withDefault('and')

@@ -6,7 +6,6 @@ export interface ITeamMember extends Document {
   phoneNumber: string;
   speciality: string;
   position: string;
-  profilePhoto?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,8 +16,7 @@ const TeamMemberSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: true },
     speciality: { type: String, required: true },
-    position: { type: String, required: true },
-    profilePhoto: { type: String }
+    position: { type: String, required: true }
   },
   {
     timestamps: true,

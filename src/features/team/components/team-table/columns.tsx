@@ -28,23 +28,19 @@ export const columns: ColumnDef<TeamMember>[] = [
   },
   {
     accessorKey: 'profilePhoto',
-    header: 'Photo',
+    header: () => <div>Photo</div>,
     cell: ({ row }) => {
-      const photoUrl = row.original.profilePhoto;
+      const photoUrl =
+        row.original.profilePhoto ||
+        `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.original.email}`;
       return (
         <div className='relative h-10 w-10 overflow-hidden rounded-full'>
-          {photoUrl ? (
-            <Image
-              src='https://api.slingacademy.com/public/sample-photos/avatar-1.png'
-              alt={row.original.name}
-              fill
-              className='object-cover'
-            />
-          ) : (
-            <div className='bg-secondary flex h-full w-full items-center justify-center text-xs'>
-              {row.original.name.charAt(0)}
-            </div>
-          )}
+          <Image
+            src={photoUrl}
+            alt={row.original.name}
+            fill
+            className='object-cover'
+          />
         </div>
       );
     }
@@ -53,6 +49,14 @@ export const columns: ColumnDef<TeamMember>[] = [
     accessorKey: 'name',
     header: 'Name',
     enableColumnFilter: true,
+    cell: ({ row }) => (
+      <div
+        className='max-w-[150px] truncate font-medium'
+        title={row.getValue('name')}
+      >
+        {row.getValue('name')}
+      </div>
+    ),
     meta: {
       label: 'Name',
       variant: 'text'
@@ -60,19 +64,45 @@ export const columns: ColumnDef<TeamMember>[] = [
   },
   {
     accessorKey: 'email',
-    header: 'Email'
+    header: 'Email',
+    cell: ({ row }) => (
+      <div className='max-w-[200px] truncate' title={row.getValue('email')}>
+        {row.getValue('email')}
+      </div>
+    )
   },
   {
     accessorKey: 'position',
-    header: 'Position'
+    header: 'Position',
+    cell: ({ row }) => (
+      <div className='max-w-[150px] truncate' title={row.getValue('position')}>
+        {row.getValue('position')}
+      </div>
+    )
   },
   {
     accessorKey: 'speciality',
-    header: 'Speciality'
+    header: 'Speciality',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[150px] truncate'
+        title={row.getValue('speciality')}
+      >
+        {row.getValue('speciality')}
+      </div>
+    )
   },
   {
     accessorKey: 'phoneNumber',
-    header: 'Phone'
+    header: 'Phone',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[120px] truncate'
+        title={row.getValue('phoneNumber')}
+      >
+        {row.getValue('phoneNumber')}
+      </div>
+    )
   },
   {
     id: 'actions',

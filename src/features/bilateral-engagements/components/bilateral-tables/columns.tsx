@@ -11,6 +11,14 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Funder' />
     ),
+    cell: ({ row }) => (
+      <div
+        className='max-w-[120px] truncate font-medium'
+        title={row.getValue('funder')}
+      >
+        {row.getValue('funder')}
+      </div>
+    ),
     enableColumnFilter: true,
     meta: {
       label: 'Funder',
@@ -39,7 +47,15 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
   },
   {
     accessorKey: 'priorityProject',
-    header: 'Priority Project'
+    header: 'Priority Project',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[150px] truncate'
+        title={row.getValue('priorityProject')}
+      >
+        {row.getValue('priorityProject')}
+      </div>
+    )
   },
   {
     accessorKey: 'stage',
@@ -93,7 +109,15 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
   },
   {
     accessorKey: 'internalOwner',
-    header: 'Owner'
+    header: 'Owner',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[120px] truncate'
+        title={row.getValue('internalOwner')}
+      >
+        {row.getValue('internalOwner')}
+      </div>
+    )
   },
   {
     accessorKey: 'nextFollowUpDate',
@@ -159,7 +183,7 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
     cell: ({ row }) => {
       const update = row.getValue('latestEmail') as string;
       return (
-        <span className='block max-w-[200px] truncate' title={update}>
+        <span className='block max-w-[150px] truncate' title={update}>
           {update || '-'}
         </span>
       );

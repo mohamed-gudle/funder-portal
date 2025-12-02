@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: pageProps) {
 
   return (
     <PageContainer>
-      <div className='w-full max-w-full min-w-0 space-y-4'>
+      <div className='w-full max-w-full min-w-0'>
         <div className='flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <Heading
             title='Open Calls'

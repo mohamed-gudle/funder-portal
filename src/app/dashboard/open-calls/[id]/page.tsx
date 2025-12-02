@@ -13,9 +13,7 @@ export default async function Page({ params }: PageProps) {
   const { id } = await params;
   return (
     <PageContainer scrollable={true}>
-      <div className='space-y-4'>
-        <OpenCallViewPage openCallId={id} />
-      </div>
+      <OpenCallViewPage openCallId={id} />
     </PageContainer>
   );
 }

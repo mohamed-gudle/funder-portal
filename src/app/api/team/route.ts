@@ -11,6 +11,8 @@ export async function GET(request: Request) {
 
     // Fetch Clerk users to get profile photos
     const client = await clerkClient();
+    const genericPhoto = 'https://api.dicebear.com/7.x/avataaars/svg?seed=';
+
     const enrichedMembers = await Promise.all(
       teamMembers.map(async (member: any) => {
         try {
@@ -23,11 +25,15 @@ export async function GET(request: Request) {
 
           return {
             ...JSON.parse(JSON.stringify(member)),
-            profilePhoto: clerkUser?.imageUrl || member.profilePhoto || ''
+            profilePhoto:
+              clerkUser?.imageUrl || `${genericPhoto}${member.email}`
           };
         } catch (error) {
-          // If Clerk lookup fails, use existing photo
-          return JSON.parse(JSON.stringify(member));
+          // If Clerk lookup fails, use generic photo
+          return {
+            ...JSON.parse(JSON.stringify(member)),
+            profilePhoto: `${genericPhoto}${member.email}`
+          };
         }
       })
     );

@@ -31,7 +31,11 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }: { column: Column<Product, unknown> }) => (
       <DataTableColumnHeader column={column} title='Name' />
     ),
-    cell: ({ cell }) => <div>{cell.getValue<Product['name']>()}</div>,
+    cell: ({ cell }) => (
+      <div className='max-w-[150px] truncate' title={cell.getValue<string>()}>
+        {cell.getValue<string>()}
+      </div>
+    ),
     meta: {
       label: 'Name',
       placeholder: 'Search products...',
@@ -66,11 +70,24 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: 'price',
-    header: 'PRICE'
+    header: 'PRICE',
+    cell: ({ row }) => (
+      <div className='max-w-[100px] truncate' title={row.getValue('price')}>
+        {row.getValue('price')}
+      </div>
+    )
   },
   {
     accessorKey: 'description',
-    header: 'DESCRIPTION'
+    header: 'DESCRIPTION',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[200px] truncate'
+        title={row.getValue('description')}
+      >
+        {row.getValue('description')}
+      </div>
+    )
   },
 
   {

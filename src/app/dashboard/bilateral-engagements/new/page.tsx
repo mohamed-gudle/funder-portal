@@ -8,12 +8,10 @@ export const metadata = {
 export default function Page() {
   return (
     <PageContainer scrollable={true}>
-      <div className='space-y-4'>
-        <BilateralForm
-          initialData={null}
-          pageTitle='Create Bilateral Engagement'
-        />
-      </div>
+      <BilateralForm
+        initialData={null}
+        pageTitle='Create Bilateral Engagement'
+      />
     </PageContainer>
   );
 }

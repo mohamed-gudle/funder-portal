@@ -13,7 +13,7 @@ export default async function Page(props: PageProps) {
   const params = await props.params;
   return (
     <PageContainer scrollable>
-      <div className='flex-1 space-y-4'>
+      <div className='w-full max-w-full min-w-0 flex-1'>
         <Suspense fallback={<FormCardSkeleton />}>
           <ProductViewPage productId={params.productId} />
         </Suspense>

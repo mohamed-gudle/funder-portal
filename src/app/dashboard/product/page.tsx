@@ -29,7 +29,7 @@ export default async function Page(props: pageProps) {
 
   return (
     <PageContainer scrollable={false}>
-      <div className='flex flex-1 flex-col space-y-4'>
+      <div className='flex w-full max-w-full min-w-0 flex-1 flex-col'>
         <div className='flex items-start justify-between'>
           <Heading
             title='Products'

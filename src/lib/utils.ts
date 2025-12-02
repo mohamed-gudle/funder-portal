@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Generates a unique identifier with a human-readable prefix.
+ * Falls back to Math.random when crypto.randomUUID is not available.
+ */
+export function createCustomId(prefix = 'id'): string {
+  const cleanPrefix = prefix.trim().replace(/\s+/g, '-');
+  const randomPart =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+      : Math.random().toString(36).slice(2, 14);
+  return `${cleanPrefix}-${randomPart}`;
+}
+
 export function formatBytes(
   bytes: number,
   opts: {

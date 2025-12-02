@@ -11,6 +11,14 @@ export const columns: ColumnDef<OpenCall>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Title' />
     ),
+    cell: ({ row }) => (
+      <div
+        className='max-w-[200px] truncate font-medium'
+        title={row.getValue('title')}
+      >
+        {row.getValue('title')}
+      </div>
+    ),
     enableColumnFilter: true,
     meta: {
       label: 'Title',
@@ -21,6 +29,11 @@ export const columns: ColumnDef<OpenCall>[] = [
     accessorKey: 'funder',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Funder' />
+    ),
+    cell: ({ row }) => (
+      <div className='max-w-[150px] truncate' title={row.getValue('funder')}>
+        {row.getValue('funder')}
+      </div>
     )
   },
   {
@@ -46,7 +59,12 @@ export const columns: ColumnDef<OpenCall>[] = [
   },
   {
     accessorKey: 'grantType',
-    header: 'Grant Type'
+    header: 'Grant Type',
+    cell: ({ row }) => (
+      <div className='max-w-[150px] truncate' title={row.getValue('grantType')}>
+        {row.getValue('grantType')}
+      </div>
+    )
   },
   {
     accessorKey: 'deadline',
@@ -114,7 +132,15 @@ export const columns: ColumnDef<OpenCall>[] = [
   },
   {
     accessorKey: 'internalOwner',
-    header: 'Owner'
+    header: 'Owner',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[150px] truncate'
+        title={row.getValue('internalOwner')}
+      >
+        {row.getValue('internalOwner')}
+      </div>
+    )
   },
   {
     accessorKey: 'status',
