@@ -61,6 +61,14 @@ export const navItems: NavItem[] = [
     shortcut: ['k', 'b'],
     isActive: false,
     items: []
+  },
+  {
+    title: 'External Drives',
+    url: '/dashboard/external-drives',
+    icon: 'cloud',
+    shortcut: ['e', 'd'],
+    isActive: false,
+    items: []
   }
 ];
 

@@ -28,9 +28,15 @@ export default function KnowledgePage() {
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [driveStatus, setDriveStatus] = useState<
+    'connected' | 'disconnected' | 'error'
+  >('disconnected');
+  const [loadingDrive, setLoadingDrive] = useState(false);
 
   useEffect(() => {
     fetchDocuments();
+    fetchDriveFiles();
   }, []);
 
   async function fetchDocuments() {
@@ -48,6 +54,48 @@ export default function KnowledgePage() {
     }
   }
 
+  async function fetchDriveFiles() {
+    try {
+      setLoadingDrive(true);
+      const res = await fetch('/api/knowledge/drive/files', {
+        cache: 'no-store'
+      });
+      if (res.status === 401) {
+        setDriveStatus('disconnected');
+        setDriveFiles([]);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error('Failed to load Drive files');
+      }
+      const data = await res.json();
+      setDriveFiles(data);
+      setDriveStatus('connected');
+    } catch (error) {
+      console.error(error);
+      setDriveStatus('error');
+      toast.error('Could not load Google Drive files');
+    } finally {
+      setLoadingDrive(false);
+    }
+  }
+
+  async function handleConnectDrive() {
+    try {
+      const res = await fetch('/api/knowledge/drive/auth');
+      if (!res.ok) throw new Error('Failed to start Drive auth');
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No auth url returned');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Could not start Google Drive connection');
+    }
+  }
+
   return (
     <div className='space-y-6 p-6'>
       <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
@@ -61,6 +109,97 @@ export default function KnowledgePage() {
         </div>
         <Button onClick={() => setShowUploader(true)}>Add document</Button>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Google Drive</CardTitle>
+          <CardDescription>
+            Connect your Drive to browse folders/files for ingestion.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='space-y-4'>
+          <div className='flex items-center justify-between gap-4'>
+            <div className='text-muted-foreground text-sm'>
+              Status:{' '}
+              <span className='text-foreground font-medium'>
+                {driveStatus === 'connected'
+                  ? 'Connected'
+                  : driveStatus === 'error'
+                    ? 'Error'
+                    : 'Disconnected'}
+              </span>
+            </div>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                onClick={fetchDriveFiles}
+                disabled={loadingDrive}
+              >
+                {loadingDrive ? 'Refreshing…' : 'Refresh'}
+              </Button>
+              <Button onClick={handleConnectDrive} disabled={loadingDrive}>
+                Connect Google Drive
+              </Button>
+            </div>
+          </div>
+
+          {driveStatus !== 'connected' ? (
+            <p className='text-muted-foreground text-sm'>
+              Connect to view your Drive files. After consenting, you&apos;ll be
+              redirected back here automatically.
+            </p>
+          ) : driveFiles.length === 0 ? (
+            <p className='text-muted-foreground text-sm'>
+              No files found in Drive (or insufficient permissions).
+            </p>
+          ) : (
+            <div className='rounded-md border'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Modified</TableHead>
+                    <TableHead>Link</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {driveFiles.map((file) => (
+                    <TableRow key={file.id}>
+                      <TableCell className='font-medium'>{file.name}</TableCell>
+                      <TableCell className='text-muted-foreground text-sm'>
+                        {file.mimeType}
+                      </TableCell>
+                      <TableCell className='text-muted-foreground text-sm'>
+                        {file.modifiedTime
+                          ? new Date(file.modifiedTime).toLocaleString()
+                          : '--'}
+                      </TableCell>
+                      <TableCell className='text-right'>
+                        {file.webViewLink ? (
+                          <Button asChild size='sm' variant='outline'>
+                            <a
+                              href={file.webViewLink}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                            >
+                              Open
+                            </a>
+                          </Button>
+                        ) : (
+                          <span className='text-muted-foreground text-xs'>
+                            —
+                          </span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

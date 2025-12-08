@@ -71,5 +71,11 @@ const doc = list.items[0] ? await knowledgeBaseService.getDocument(list.items[0]
 
 ## Frontend / API entry point
 - Upload UI: `src/app/dashboard/knowledge/page.tsx` (uploads file + metadata)
-- API: `POST /api/knowledge` stores metadata in MongoDB and uploads the file to S3 under the `knowledge-base/{docType}` prefix; `GET /api/knowledge` lists stored docs; `GET /api/knowledge/download?key=...&filename=...` streams a stored document from S3 for download (UI uses `s3Key` directly to avoid lookup failures).
+- Drive connect UI: same page shows a “Connect Google Drive” CTA; once connected it lists the user’s files (metadata-only scope) via `/api/knowledge/drive/files`.
+- API: `POST /api/knowledge` stores metadata in MongoDB and uploads the file to S3 under the `knowledge-base/{docType}` prefix; `GET /api/knowledge` lists stored docs; `GET /api/knowledge/download?key=...&filename=...` streams a stored document from S3 for download; `GET /api/knowledge/drive/auth` returns the Google OAuth URL; `GET /api/knowledge/drive/callback` captures the refresh token in a secure cookie; `GET /api/knowledge/drive/files` lists files using the stored refresh token.
+
+## Google Drive env vars
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI` (e.g., `https://<domain>/api/knowledge/drive/callback`)
 - Download: `GET /api/knowledge/:id` streams the stored file with Content-Disposition attachment.
