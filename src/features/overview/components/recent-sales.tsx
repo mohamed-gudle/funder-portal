@@ -17,12 +17,14 @@ const statusColors: Record<
   string,
   'default' | 'secondary' | 'outline' | 'destructive'
 > = {
-  Intake: 'default',
-  Reviewing: 'secondary',
-  'Application preparation': 'default',
-  'Application submitted': 'outline',
-  'Go/No-Go': 'secondary',
-  Outcome: 'destructive'
+  'In Review': 'secondary',
+  'Go/No-Go': 'outline',
+  'Proposal Writing': 'default',
+  'Internal Review': 'secondary',
+  'Submission Stage': 'default',
+  Submitted: 'outline',
+  Accepted: 'default',
+  Rejected: 'destructive'
 };
 
 export async function RecentSales() {
@@ -45,7 +47,9 @@ export async function RecentSales() {
                   <p className='line-clamp-1 text-sm leading-none font-medium'>
                     {call.title}
                   </p>
-                  <p className='text-muted-foreground text-xs'>{call.funder}</p>
+                  <p className='text-muted-foreground text-xs'>
+                    {call.funder || 'Unknown funder'}
+                  </p>
                 </div>
               </div>
               <div className='flex items-center justify-between'>

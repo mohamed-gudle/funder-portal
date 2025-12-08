@@ -1,5 +1,7 @@
 import BilateralForm from './bilateral-form';
 import { notFound } from 'next/navigation';
+import { ActivityFeed } from '@/components/activity-feed/activity-feed';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type BilateralViewPageProps = {
   engagementId: string;
@@ -27,9 +29,26 @@ export default async function BilateralViewPage({
   }
 
   return (
-    <BilateralForm
-      initialData={engagement}
-      pageTitle={`Edit Engagement: ${engagement.funder}`}
-    />
+    <div className='grid grid-cols-1 gap-6 xl:grid-cols-3'>
+      <div className='xl:col-span-2'>
+        <BilateralForm
+          initialData={engagement}
+          pageTitle={`Edit Engagement: ${engagement.organizationName}`}
+        />
+      </div>
+      <div className='xl:col-span-1'>
+        <Card className='h-full'>
+          <CardHeader>
+            <CardTitle>Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActivityFeed
+              parentId={engagement.id || engagement._id}
+              parentModel='BilateralEngagement'
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

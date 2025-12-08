@@ -21,25 +21,24 @@ async function getDashboardStats() {
 
   // Calculate stats for open calls
   const totalBudget = openCalls.reduce((sum, call) => {
-    const budget = parseInt(call.budget.replace(/[$,]/g, '')) || 0;
+    const budget = parseInt((call.budget || '0').replace(/[$,]/g, '')) || 0;
     return sum + budget;
   }, 0);
 
   const reviewingCalls = openCalls.filter(
-    (call) => call.status === 'Reviewing'
+    (call) => call.status === 'In Review'
   ).length;
   const applicationSubmitted = openCalls.filter(
-    (call) => call.status === 'Application submitted'
+    (call) => call.status === 'Submitted'
   ).length;
 
   // Calculate stats for bilateral engagements
   const activeEngagements = bilateralEngagements.filter(
-    (engagement) =>
-      engagement.stage !== 'Closed' && engagement.stage !== 'Paused'
+    (engagement) => engagement.status !== 'No Relationship'
   ).length;
 
   const highConfidenceEngagements = bilateralEngagements.filter(
-    (engagement) => engagement.confidenceLevel === 'High'
+    (engagement) => (engagement.likelihoodToFund || 0) >= 70
   ).length;
 
   return {

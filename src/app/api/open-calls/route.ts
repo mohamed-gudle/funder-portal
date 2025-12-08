@@ -7,8 +7,18 @@ export async function GET(request: Request) {
     const search = searchParams.get('search') || undefined;
     const status = searchParams.get('status') || undefined;
     const sector = searchParams.get('sector') || undefined;
+    const callStatus = searchParams.get('callStatus') || undefined;
+    const priority = searchParams.get('priority') || undefined;
+    const fundingType = searchParams.get('fundingType') || undefined;
 
-    const openCalls = await openCallService.findAll({ search, status, sector });
+    const openCalls = await openCallService.findAll({
+      search,
+      status,
+      sector,
+      callStatus,
+      priority,
+      fundingType
+    });
 
     return NextResponse.json(openCalls);
   } catch (error) {

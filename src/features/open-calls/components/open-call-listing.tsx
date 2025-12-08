@@ -7,12 +7,18 @@ export default async function OpenCallListingPage({}: OpenCallListingPageProps) 
   const search = searchParamsCache.get('q');
   const status = searchParamsCache.get('status');
   const sector = searchParamsCache.get('sector');
+  const callStatus = searchParamsCache.get('callStatus');
+  const priority = searchParamsCache.get('priority');
+  const fundingType = searchParamsCache.get('fundingType');
 
   // Build query parameters
   const params = new URLSearchParams();
   if (search) params.append('search', search);
   if (status) params.append('status', status);
   if (sector) params.append('sector', sector);
+  if (callStatus) params.append('callStatus', callStatus);
+  if (priority) params.append('priority', priority);
+  if (fundingType) params.append('fundingType', fundingType);
 
   // Fetch data from API
   const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/open-calls${params.toString() ? `?${params.toString()}` : ''}`;

@@ -15,29 +15,50 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { ChevronPath } from '@/components/ui/chevron-path';
 
-const formSchema = z.object({
-  title: z.string().min(2, { message: 'Title is required.' }),
-  funder: z.string().min(2, { message: 'Funder is required.' }),
-  sector: z.string().min(1, { message: 'Sector is required.' }),
-  grantType: z.string().optional(),
-  budget: z.string().optional(),
-  deadline: z.string().min(1, { message: 'Deadline is required.' }),
-  url: z.string().url().optional().or(z.literal('')),
-  description: z.string().optional(),
-  priorityProject: z.string().optional(),
-  thematicAlignment: z.string().optional(),
-  internalOwner: z.string().optional(),
-  status: z.enum([
-    'Intake',
-    'Reviewing',
-    'Go/No-Go',
-    'Application preparation',
-    'Application submitted',
-    'Outcome'
-  ]),
-  documents: z.array(z.any()).optional()
-});
+const callStages = [
+  'In Review',
+  'Go/No-Go',
+  'Proposal Writing',
+  'Internal Review',
+  'Submission Stage',
+  'Submitted',
+  'Accepted',
+  'Rejected'
+] as const;
+
+const formSchema = z
+  .object({
+    title: z.string().min(2, { message: 'Title is required.' }),
+    funder: z.string().optional(),
+    sector: z.string().optional(),
+    grantType: z.string().optional(),
+    budget: z.string().optional(),
+    deadline: z.string().min(1, { message: 'Deadline is required.' }),
+    url: z.string().url().optional().or(z.literal('')),
+    description: z.string().optional(),
+    priorityProject: z.string().optional(),
+    thematicAlignment: z.string().optional(),
+    internalOwner: z
+      .string()
+      .min(1, { message: 'Internal owner is required.' }),
+    callStatus: z.enum(['Open', 'Closed']),
+    priority: z.enum(['High', 'Medium', 'Low']),
+    fundingType: z.enum(['Core Funding', 'Programmatic Funding']),
+    relatedProgram: z.string().optional(),
+    status: z.enum(callStages),
+    documents: z.array(z.any()).optional()
+  })
+  .refine(
+    (data) =>
+      data.fundingType !== 'Programmatic Funding' ||
+      (data.relatedProgram && data.relatedProgram.trim().length > 0),
+    {
+      message: 'Related program is required for Programmatic Funding.',
+      path: ['relatedProgram']
+    }
+  );
 
 export default function OpenCallForm({
   initialData,
@@ -65,10 +86,16 @@ export default function OpenCallForm({
       priorityProject: initialData?.priorityProject || '',
       thematicAlignment: initialData?.thematicAlignment || '',
       internalOwner: initialData?.internalOwner || '',
-      status: initialData?.status || 'Intake',
+      callStatus: initialData?.callStatus || 'Open',
+      priority: initialData?.priority || 'Medium',
+      fundingType: initialData?.fundingType || 'Core Funding',
+      relatedProgram: initialData?.relatedProgram || '',
+      status: initialData?.status || 'In Review',
       documents: []
     }
   });
+
+  const currentStatus = form.watch('status');
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -78,7 +105,11 @@ export default function OpenCallForm({
         grantType: values.grantType || '',
         budget: values.budget || '',
         description: values.description || '',
-        internalOwner: values.internalOwner || ''
+        internalOwner: values.internalOwner || '',
+        relatedProgram:
+          values.fundingType === 'Programmatic Funding'
+            ? values.relatedProgram || ''
+            : undefined
       };
 
       const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/open-calls`;
@@ -125,9 +156,21 @@ export default function OpenCallForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <div className='flex flex-col gap-6'>
+          <div className='flex items-center justify-between'>
+            <CardTitle className='text-left text-2xl font-bold'>
+              {pageTitle}
+            </CardTitle>
+          </div>
+
+          <ChevronPath
+            steps={[...callStages]}
+            currentStep={currentStatus}
+            onStepClick={(step) =>
+              form.setValue('status', step as any, { shouldDirty: true })
+            }
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Form
@@ -148,20 +191,29 @@ export default function OpenCallForm({
               name='funder'
               label='Funder'
               placeholder='Enter funder name'
-              required
             />
             <FormSelect
               control={form.control}
               name='sector'
               label='Sector'
               placeholder='Select sector'
-              required
               options={[
                 { label: 'Energy', value: 'Energy' },
                 { label: 'Agriculture', value: 'Agriculture' },
                 { label: 'Clean Cooking', value: 'Clean Cooking' },
                 { label: 'Water', value: 'Water' },
                 { label: 'Health', value: 'Health' }
+              ]}
+            />
+            <FormSelect
+              control={form.control}
+              name='fundingType'
+              label='Funding Type'
+              placeholder='Select funding type'
+              required
+              options={[
+                { label: 'Core Funding', value: 'Core Funding' },
+                { label: 'Programmatic Funding', value: 'Programmatic Funding' }
               ]}
             />
             <FormSelect
@@ -183,6 +235,29 @@ export default function OpenCallForm({
               label='Estimated Budget'
               placeholder='e.g. $50,000 - $100,000'
             />
+            <FormSelect
+              control={form.control}
+              name='priority'
+              label='Prioritization'
+              placeholder='Select priority'
+              required
+              options={[
+                { label: 'High', value: 'High' },
+                { label: 'Medium', value: 'Medium' },
+                { label: 'Low', value: 'Low' }
+              ]}
+            />
+            <FormSelect
+              control={form.control}
+              name='callStatus'
+              label='Call Status'
+              placeholder='Is this call active?'
+              required
+              options={[
+                { label: 'Open', value: 'Open' },
+                { label: 'Closed', value: 'Closed' }
+              ]}
+            />
             <FormInput
               control={form.control}
               name='deadline'
@@ -202,27 +277,23 @@ export default function OpenCallForm({
               label='Internal Owner'
               placeholder='Assign an owner'
               options={teamMembers}
+              required
             />
             <FormSelect
               control={form.control}
               name='status'
-              label='Status'
-              placeholder='Select status'
-              options={[
-                { label: 'Intake', value: 'Intake' },
-                { label: 'Reviewing', value: 'Reviewing' },
-                { label: 'Go/No-Go', value: 'Go/No-Go' },
-                {
-                  label: 'Application preparation',
-                  value: 'Application preparation'
-                },
-                {
-                  label: 'Application submitted',
-                  value: 'Application submitted'
-                },
-                { label: 'Outcome', value: 'Outcome' }
-              ]}
-              disabled={!initialData} // Only editable if updating, or follow workflow rules
+              label='Pipeline Stage'
+              placeholder='Select stage'
+              options={callStages.map((stage) => ({
+                label: stage,
+                value: stage
+              }))}
+            />
+            <FormInput
+              control={form.control}
+              name='relatedProgram'
+              label='Related Program'
+              placeholder='Program link if Programmatic Funding'
             />
           </div>
 

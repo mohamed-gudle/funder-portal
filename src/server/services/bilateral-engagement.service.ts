@@ -16,21 +16,26 @@ export class BilateralEngagementService {
 
     // Stage filter
     if (filter.stage) {
-      query.stage = filter.stage;
+      query.status = filter.stage;
     }
 
-    // Sector filter
+    if (filter.status) {
+      query.status = filter.status;
+    }
+
+    // Tag filter (reuse sector param for backward compatibility)
     if (filter.sector) {
-      query.sector = filter.sector;
+      query.tags = filter.sector;
     }
 
     // Search filter
     if (filter.search) {
       query.$or = [
-        { funder: { $regex: filter.search, $options: 'i' } },
-        { sector: { $regex: filter.search, $options: 'i' } },
+        { organizationName: { $regex: filter.search, $options: 'i' } },
+        { contactPerson: { $regex: filter.search, $options: 'i' } },
         { internalOwner: { $regex: filter.search, $options: 'i' } },
-        { engagementType: { $regex: filter.search, $options: 'i' } }
+        { email: { $regex: filter.search, $options: 'i' } },
+        { tags: { $regex: filter.search, $options: 'i' } }
       ];
     }
 

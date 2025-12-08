@@ -17,6 +17,9 @@ export const searchParams = {
   // Open Calls and Bilateral Engagements filters
   status: parseAsString, // Open Call status filter
   stage: parseAsString, // Bilateral Engagement stage filter
+  callStatus: parseAsString,
+  priority: parseAsString,
+  fundingType: parseAsString,
   sector: parseAsString // Sector filter for both
   // advanced filter
   // filters: getFiltersStateParser().withDefault([]),

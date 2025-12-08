@@ -7,73 +7,61 @@ import { CellAction } from './cell-action';
 
 export const columns: ColumnDef<BilateralEngagement>[] = [
   {
-    accessorKey: 'funder',
+    accessorKey: 'organizationName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Funder' />
+      <DataTableColumnHeader column={column} title='Organization' />
     ),
     cell: ({ row }) => (
       <div
-        className='max-w-[120px] truncate font-medium'
-        title={row.getValue('funder')}
+        className='max-w-[160px] truncate font-medium'
+        title={row.getValue('organizationName')}
       >
-        {row.getValue('funder')}
+        {row.getValue('organizationName')}
       </div>
     ),
     enableColumnFilter: true,
     meta: {
-      label: 'Funder',
-      placeholder: 'Filter by funder...',
+      label: 'Organization',
+      placeholder: 'Filter by organization...',
       variant: 'text'
     }
   },
   {
-    accessorKey: 'sector',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Sector' />
-    ),
-    enableColumnFilter: true,
-    meta: {
-      label: 'Sector',
-      variant: 'multiSelect',
-      options: [
-        { label: 'Energy', value: 'Energy' },
-        { label: 'Agriculture', value: 'Agriculture' },
-        { label: 'Clean Cooking', value: 'Clean Cooking' }
-      ]
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    }
-  },
-  {
-    accessorKey: 'priorityProject',
-    header: 'Priority Project',
+    accessorKey: 'contactPerson',
+    header: 'Contact',
     cell: ({ row }) => (
-      <div
-        className='max-w-[150px] truncate'
-        title={row.getValue('priorityProject')}
-      >
-        {row.getValue('priorityProject')}
+      <div className='flex flex-col'>
+        <span
+          className='max-w-[150px] truncate'
+          title={row.getValue('contactPerson')}
+        >
+          {row.getValue('contactPerson') || '-'}
+        </span>
+        <span className='text-muted-foreground text-xs'>
+          {row.original.contactRole || ''}
+        </span>
       </div>
     )
   },
   {
-    accessorKey: 'stage',
+    accessorKey: 'status',
     header: 'Stage',
     cell: ({ row }) => {
-      const stage = row.getValue('stage') as string;
+      const stage = row.getValue('status') as string;
       const stageColorMap: Record<string, string> = {
-        Identification:
+        'Cold Email':
           'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-900/60 dark:text-slate-100 dark:border-slate-700',
-        'Engagement ongoing':
+        'First Engagement':
           'bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-950/50 dark:text-sky-100 dark:border-sky-900',
-        'Proposal under development':
+        'Proposal Stage':
           'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-100 dark:border-indigo-900',
-        'Decision pending':
+        Contracting:
           'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900',
-        Paused:
-          'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-950/50 dark:text-orange-100 dark:border-orange-900',
-        Closed:
+        Partner:
+          'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-100 dark:border-emerald-900',
+        Funder:
+          'bg-lime-100 text-lime-800 border-lime-200 dark:bg-lime-950/50 dark:text-lime-100 dark:border-lime-900',
+        'No Relationship':
           'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/50 dark:text-rose-100 dark:border-rose-900'
       };
 
@@ -92,15 +80,13 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
       label: 'Stage',
       variant: 'multiSelect',
       options: [
-        { label: 'Identification', value: 'Identification' },
-        { label: 'Engagement ongoing', value: 'Engagement ongoing' },
-        {
-          label: 'Proposal under development',
-          value: 'Proposal under development'
-        },
-        { label: 'Decision pending', value: 'Decision pending' },
-        { label: 'Paused', value: 'Paused' },
-        { label: 'Closed', value: 'Closed' }
+        { label: 'Cold Email', value: 'Cold Email' },
+        { label: 'First Engagement', value: 'First Engagement' },
+        { label: 'Proposal Stage', value: 'Proposal Stage' },
+        { label: 'Contracting', value: 'Contracting' },
+        { label: 'Partner', value: 'Partner' },
+        { label: 'Funder', value: 'Funder' },
+        { label: 'No Relationship', value: 'No Relationship' }
       ]
     },
     filterFn: (row, id, value) => {
@@ -120,72 +106,56 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
     )
   },
   {
-    accessorKey: 'nextFollowUpDate',
-    header: 'Next Follow-up',
+    accessorKey: 'likelihoodToFund',
+    header: 'Temperature',
     cell: ({ row }) => {
-      const dateStr = row.getValue('nextFollowUpDate') as string;
-      if (!dateStr) return <span>-</span>;
-      const date = new Date(dateStr);
-      const formattedDate = date.toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-      const now = new Date();
-      const diffDays = Math.ceil(
-        (date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      const followUpBadge = (() => {
-        if (diffDays < 0) {
-          return {
-            label: 'Overdue',
-            className:
-              'bg-red-100 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-200 dark:border-red-900'
-          };
-        }
-        if (diffDays === 0) {
-          return {
-            label: 'Due today',
-            className:
-              'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-950/50 dark:text-orange-100 dark:border-orange-900'
-          };
-        }
-        if (diffDays <= 7) {
-          return {
-            label: `In ${diffDays}d`,
-            className:
-              'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900'
-          };
-        }
-        return {
-          label: 'Scheduled',
-          className:
-            'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-100 dark:border-emerald-900'
-        };
-      })();
+      const likelihood = Number(row.getValue('likelihoodToFund') || 0);
+      const label =
+        likelihood >= 70 ? 'Hot' : likelihood >= 30 ? 'Warm' : 'Cold';
+      const colorMap: Record<string, string> = {
+        Hot: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-200 dark:border-red-900',
+        Warm: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900',
+        Cold: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-900/60 dark:text-slate-100 dark:border-slate-700'
+      };
 
       return (
-        <div className='flex flex-col gap-1'>
-          <span className='text-foreground text-sm font-medium'>
-            {formattedDate}
-          </span>
-          <Badge variant='outline' className={followUpBadge.className}>
-            {followUpBadge.label}
+        <div className='flex items-center gap-2'>
+          <Badge variant='outline' className={colorMap[label]}>
+            {label}
           </Badge>
+          <span className='text-muted-foreground text-xs'>{likelihood}%</span>
         </div>
       );
     }
   },
   {
-    accessorKey: 'latestEmail',
-    header: 'Latest Update',
+    accessorKey: 'estimatedValue',
+    header: 'Estimated Value',
     cell: ({ row }) => {
-      const update = row.getValue('latestEmail') as string;
+      const value = row.getValue('estimatedValue') as number;
+      const currency = row.original.currency;
+      if (!value) return <span>-</span>;
       return (
-        <span className='block max-w-[150px] truncate' title={update}>
-          {update || '-'}
+        <span className='block max-w-[140px] truncate font-medium'>
+          {currency} {value.toLocaleString()}
         </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'tags',
+    header: 'Tags',
+    cell: ({ row }) => {
+      const tags = (row.getValue('tags') as string[]) || [];
+      if (!tags.length) return <span>-</span>;
+      return (
+        <div className='flex max-w-[200px] flex-wrap gap-1'>
+          {tags.map((tag) => (
+            <Badge key={tag} variant='outline'>
+              {tag}
+            </Badge>
+          ))}
+        </div>
       );
     }
   },

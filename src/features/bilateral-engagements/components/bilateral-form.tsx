@@ -14,26 +14,32 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { ChevronPath } from '@/components/ui/chevron-path';
+
+const engagementStages = [
+  'Cold Email',
+  'First Engagement',
+  'Proposal Stage',
+  'Contracting',
+  'Partner',
+  'Funder',
+  'No Relationship'
+] as const;
 
 const formSchema = z.object({
-  funder: z.string().min(2, { message: 'Funder is required.' }),
-  sector: z.string().min(1, { message: 'Sector is required.' }),
-  engagementType: z.string().optional(),
-  priorityProject: z.string().optional(),
-  internalOwner: z.string().optional(),
-  stage: z.enum([
-    'Identification',
-    'Engagement ongoing',
-    'Proposal under development',
-    'Decision pending',
-    'Paused',
-    'Closed'
-  ]),
-  latestEmail: z.string().optional(),
-  nextFollowUpDate: z.string().optional(),
-  confidenceLevel: z.enum(['High', 'Medium', 'Low']).optional(),
-  notes: z.string().optional(),
-  importanceScore: z.string().optional()
+  organizationName: z
+    .string()
+    .min(2, { message: 'Organization name is required.' }),
+  contactPerson: z.string().optional(),
+  contactRole: z.string().optional(),
+  email: z.string().email().optional().or(z.literal('')),
+  internalOwner: z.string().min(1, { message: 'Internal owner is required.' }),
+  status: z.enum(engagementStages),
+  likelihoodToFund: z.string().optional(),
+  estimatedValue: z.string().optional(),
+  currency: z.enum(['USD', 'KES', 'EUR', 'GBP']),
+  tags: z.string().optional(),
+  notes: z.string().optional()
 });
 
 export default function BilateralForm({
@@ -49,34 +55,38 @@ export default function BilateralForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      funder: initialData?.funder || '',
-      sector: initialData?.sector || '',
-      engagementType: initialData?.engagementType || '',
-      priorityProject: initialData?.priorityProject || '',
+      organizationName: initialData?.organizationName || '',
+      contactPerson: initialData?.contactPerson || '',
+      contactRole: initialData?.contactRole || '',
+      email: initialData?.email || '',
       internalOwner: initialData?.internalOwner || '',
-      stage: initialData?.stage || 'Identification',
-      latestEmail: initialData?.latestEmail || '',
-      nextFollowUpDate: initialData?.nextFollowUpDate
-        ? new Date(initialData.nextFollowUpDate).toISOString().split('T')[0]
-        : '',
-      confidenceLevel: initialData?.confidenceLevel || 'Medium',
-      notes: '',
-      importanceScore: initialData?.importanceScore?.toString() || ''
+      status: initialData?.status || 'Cold Email',
+      likelihoodToFund:
+        initialData?.likelihoodToFund?.toString() || (10).toString(),
+      estimatedValue: initialData?.estimatedValue?.toString() || '',
+      currency: initialData?.currency || 'USD',
+      tags: (initialData?.tags || []).join(', '),
+      notes: ''
     }
   });
 
+  const currentStatus = form.watch('status');
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const { notes, ...rest } = values;
+      const { tags, likelihoodToFund, estimatedValue, ...rest } = values;
       const data = {
         ...rest,
-        engagementType: values.engagementType || '',
-        priorityProject: values.priorityProject || '',
         internalOwner: values.internalOwner || '',
-        latestEmail: values.latestEmail || '',
-        nextFollowUpDate: values.nextFollowUpDate || '',
-        importanceScore: values.importanceScore
-          ? parseInt(values.importanceScore)
+        likelihoodToFund: likelihoodToFund
+          ? parseInt(likelihoodToFund)
+          : undefined,
+        estimatedValue: estimatedValue ? parseInt(estimatedValue) : undefined,
+        tags: tags
+          ? tags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean)
           : undefined
       };
 
@@ -124,9 +134,21 @@ export default function BilateralForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
-          {pageTitle}
-        </CardTitle>
+        <div className='flex flex-col gap-6'>
+          <div className='flex items-center justify-between'>
+            <CardTitle className='text-left text-2xl font-bold'>
+              {pageTitle}
+            </CardTitle>
+          </div>
+
+          <ChevronPath
+            steps={[...engagementStages]}
+            currentStep={currentStatus}
+            onStepClick={(step) =>
+              form.setValue('status', step as any, { shouldDirty: true })
+            }
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Form
@@ -137,36 +159,28 @@ export default function BilateralForm({
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <FormInput
               control={form.control}
-              name='funder'
-              label='Funder'
-              placeholder='Enter funder name'
+              name='organizationName'
+              label='Organization / Stakeholder'
+              placeholder='Enter organization name'
               required
-            />
-            <FormSelect
-              control={form.control}
-              name='sector'
-              label='Sector'
-              placeholder='Select sector'
-              required
-              options={[
-                { label: 'Energy', value: 'Energy' },
-                { label: 'Agriculture', value: 'Agriculture' },
-                { label: 'Clean Cooking', value: 'Clean Cooking' }
-              ]}
             />
             <FormInput
               control={form.control}
-              name='engagementType'
-              label='Engagement Type'
-              placeholder='e.g. Early Discussion'
+              name='contactPerson'
+              label='Primary Contact'
+              placeholder='e.g. Bill Gates'
             />
-            <FormSelectAvatar
+            <FormInput
               control={form.control}
-              name='priorityProject'
-              label='Project Owner'
-              placeholder='Select project owner'
-              description='The team member responsible for this project'
-              options={teamMembers}
+              name='contactRole'
+              label='Contact Role'
+              placeholder='e.g. Program Officer'
+            />
+            <FormInput
+              control={form.control}
+              name='email'
+              label='Email'
+              placeholder='contact@example.com'
             />
             <FormSelectAvatar
               control={form.control}
@@ -174,57 +188,60 @@ export default function BilateralForm({
               label='Internal Owner'
               placeholder='Assign an owner'
               options={teamMembers}
+              required
             />
             <FormSelect
               control={form.control}
-              name='stage'
-              label='Stage'
+              name='status'
+              label='Engagement Stage'
               placeholder='Select stage'
-              options={[
-                { label: 'Identification', value: 'Identification' },
-                { label: 'Engagement ongoing', value: 'Engagement ongoing' },
-                {
-                  label: 'Proposal under development',
-                  value: 'Proposal under development'
-                },
-                { label: 'Decision pending', value: 'Decision pending' },
-                { label: 'Paused', value: 'Paused' },
-                { label: 'Closed', value: 'Closed' }
-              ]}
+              options={engagementStages.map((stage) => ({
+                label: stage,
+                value: stage
+              }))}
             />
             <FormInput
               control={form.control}
-              name='nextFollowUpDate'
-              label='Next Follow-up Date'
-              type='date'
+              name='likelihoodToFund'
+              label='Likelihood to Fund (%)'
+              type='number'
+              min={0}
+              max={100}
+            />
+            <FormInput
+              control={form.control}
+              name='estimatedValue'
+              label='Estimated Value'
+              type='number'
+              min={0}
+              placeholder='Potential value'
             />
             <FormSelect
               control={form.control}
-              name='confidenceLevel'
-              label='Confidence Level'
-              placeholder='Select confidence'
-              description='How confident are you in securing this funding?'
+              name='currency'
+              label='Currency'
+              placeholder='Select currency'
               options={[
-                { label: 'Low', value: 'Low' },
-                { label: 'Medium', value: 'Medium' },
-                { label: 'High', value: 'High' }
+                { label: 'USD', value: 'USD' },
+                { label: 'KES', value: 'KES' },
+                { label: 'EUR', value: 'EUR' },
+                { label: 'GBP', value: 'GBP' }
               ]}
             />
             <FormInput
               control={form.control}
-              name='importanceScore'
-              label='Importance Score (1-10)'
-              type='number'
-              min={1}
-              max={10}
+              name='tags'
+              label='Tags'
+              placeholder='Climate, Energy, Nairobi'
+              description='Comma separated descriptors for filtering'
             />
           </div>
 
           <FormTextarea
             control={form.control}
-            name='latestEmail'
-            label='Latest Email / Update'
-            placeholder='Paste email text or update here...'
+            name='notes'
+            label='Notes / Latest Update'
+            placeholder='Log outreach, meetings, or sentiment...'
             config={{
               maxLength: 2000,
               showCharCount: true,

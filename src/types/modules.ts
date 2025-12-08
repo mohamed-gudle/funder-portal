@@ -1,10 +1,19 @@
 export type OpenCallStatus =
-  | 'Intake'
-  | 'Reviewing'
+  | 'In Review'
   | 'Go/No-Go'
-  | 'Application preparation'
-  | 'Application submitted'
-  | 'Outcome';
+  | 'Proposal Writing'
+  | 'Internal Review'
+  | 'Submission Stage'
+  | 'Submitted'
+  | 'Accepted'
+  | 'Rejected';
+
+export type CallLifecycle = 'Open' | 'Closed';
+
+export type StagePermission<TStage extends string> = {
+  stage: TStage;
+  assignees: string[];
+};
 
 export type Note = {
   id: string;
@@ -23,16 +32,21 @@ export type Document = {
 export type OpenCall = {
   id: string;
   title: string;
-  funder: string;
-  sector: string;
-  grantType: string;
-  budget: string;
+  funder?: string;
+  sector?: string;
+  grantType?: string;
+  budget?: string;
   deadline: string;
   url?: string;
   description: string;
   priorityProject?: string;
   thematicAlignment?: string;
   internalOwner: string;
+  callStatus: CallLifecycle;
+  priority: 'High' | 'Medium' | 'Low';
+  fundingType: 'Core Funding' | 'Programmatic Funding';
+  relatedProgram?: string;
+  stagePermissions?: StagePermission<OpenCallStatus>[];
   status: OpenCallStatus;
   notes: Note[];
   documents: Document[];
@@ -41,27 +55,61 @@ export type OpenCall = {
 };
 
 export type BilateralEngagementStage =
-  | 'Identification'
-  | 'Engagement ongoing'
-  | 'Proposal under development'
-  | 'Decision pending'
-  | 'Paused'
-  | 'Closed';
+  | 'Cold Email'
+  | 'First Engagement'
+  | 'Proposal Stage'
+  | 'Contracting'
+  | 'Partner'
+  | 'Funder'
+  | 'No Relationship';
 
 export type BilateralEngagement = {
   id: string;
-  funder: string;
-  sector: string;
-  engagementType: string;
-  priorityProject?: string;
+  organizationName: string;
+  contactPerson?: string;
+  contactRole?: string;
+  email?: string;
   internalOwner: string;
-  stage: BilateralEngagementStage;
+  status: BilateralEngagementStage;
+  likelihoodToFund: number;
+  estimatedValue: number;
+  currency: 'USD' | 'KES' | 'EUR' | 'GBP';
+  tags?: string[];
+  stagePermissions?: StagePermission<BilateralEngagementStage>[];
+  temperatureLabel?: 'Hot' | 'Warm' | 'Cold';
   notes: Note[];
   documents: Document[];
-  latestEmail?: string; // Text or URL
-  nextFollowUpDate?: string;
-  confidenceLevel?: 'Low' | 'Medium' | 'High';
-  importanceScore?: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type EngagementContact = {
+  id: string;
+  engagement: string;
+  name: string;
+  role?: string;
+  email?: string;
+  phone?: string;
+  isPrimaryPointOfContact: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ActivityType =
+  | 'Call Log'
+  | 'Email'
+  | 'Meeting Note'
+  | 'Internal Comment'
+  | 'Status Change';
+
+export type Activity = {
+  id: string;
+  author: string;
+  type: ActivityType;
+  content: string;
+  sentiment: 'Positive' | 'Neutral' | 'Negative';
+  parent: string;
+  parentModel: 'OpenCall' | 'CompetitiveCall' | 'BilateralEngagement';
   createdAt: string;
   updatedAt: string;
 };

@@ -39,12 +39,14 @@ async function getFunderData() {
 
   const funderCounts = allEngagements.reduce(
     (acc, engagement) => {
-      const existing = acc.find((item) => item.funder === engagement.funder);
+      const label =
+        engagement.organizationName?.split(' ').slice(0, 3).join(' ') || '';
+      const existing = acc.find((item) => item.funder === label);
       if (existing) {
         existing.count += 1;
       } else {
         acc.push({
-          funder: engagement.funder.split(' ').slice(0, 3).join(' '),
+          funder: label,
           count: 1
         });
       }
@@ -86,10 +88,10 @@ export function PieGraph() {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Top Bilateral Funders</CardTitle>
+        <CardTitle>Top Bilateral Partners</CardTitle>
         <CardDescription>
           <span className='hidden @[540px]/card:block'>
-            Funders with the most active engagements
+            Organizations with the most active engagements
           </span>
           <span className='@[540px]/card:hidden'>Active engagements</span>
         </CardDescription>
@@ -152,7 +154,7 @@ export function PieGraph() {
           <IconTrendingUp className='h-4 w-4' />
         </div>
         <div className='text-muted-foreground leading-none'>
-          Top 5 funders by active engagement
+          Top 5 organizations by active engagement
         </div>
       </CardFooter>
     </Card>

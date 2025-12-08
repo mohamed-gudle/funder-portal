@@ -17,6 +17,21 @@ export class OpenCallService {
       query.status = filter.status;
     }
 
+    // Call lifecycle (open/closed)
+    if (filter.callStatus) {
+      query.callStatus = filter.callStatus;
+    }
+
+    // Priority filter
+    if (filter.priority) {
+      query.priority = filter.priority;
+    }
+
+    // Funding type filter
+    if (filter.fundingType) {
+      query.fundingType = filter.fundingType;
+    }
+
     // Sector filter
     if (filter.sector) {
       query.sector = filter.sector;

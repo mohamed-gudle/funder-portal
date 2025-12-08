@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
   },
 
   {
-    title: 'Open Calls',
+    title: 'Competitive Calls',
     url: '/dashboard/open-calls',
     icon: 'billing', // Using billing icon as a placeholder for grants/money
     shortcut: ['o', 'c'],

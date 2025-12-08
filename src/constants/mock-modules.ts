@@ -15,7 +15,7 @@ export const fakeOpenCalls = {
   records: [] as OpenCall[],
 
   initialize() {
-    const sampleOpenCalls: OpenCall[] = [
+    const sampleOpenCalls = [
       {
         id: '1',
         title: 'Renewable Energy for Rural Communities - Africa 2024',
@@ -31,7 +31,7 @@ export const fakeOpenCalls = {
         thematicAlignment:
           'Renewable energy transition and climate change mitigation',
         internalOwner: 'Sarah Okafor',
-        status: 'Reviewing' as OpenCallStatus,
+        status: 'Reviewing',
         notes: [],
         documents: [],
         createdAt: new Date('2024-01-15').toISOString(),
@@ -51,7 +51,7 @@ export const fakeOpenCalls = {
         priorityProject: undefined,
         thematicAlignment: 'Food security and climate adaptation',
         internalOwner: 'Emmanuel Mensah',
-        status: 'Intake' as OpenCallStatus,
+        status: 'Intake',
         notes: [],
         documents: [],
         createdAt: new Date('2024-10-20').toISOString(),
@@ -71,7 +71,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Clean Cooking for All',
         thematicAlignment: 'Health, environment, and gender empowerment',
         internalOwner: 'Fatima Hassan',
-        status: 'Go/No-Go' as OpenCallStatus,
+        status: 'Go/No-Go',
         notes: [],
         documents: [],
         createdAt: new Date('2024-09-01').toISOString(),
@@ -91,7 +91,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Water Security Project',
         thematicAlignment: 'Access to clean water and sustainable development',
         internalOwner: 'Kwame Owusu',
-        status: 'Application preparation' as OpenCallStatus,
+        status: 'Application preparation',
         notes: [],
         documents: [],
         createdAt: new Date('2024-08-15').toISOString(),
@@ -111,7 +111,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Energy Access Initiative',
         thematicAlignment: 'Universal electricity access',
         internalOwner: 'Amara Ndiaye',
-        status: 'Application submitted' as OpenCallStatus,
+        status: 'Application submitted',
         notes: [],
         documents: [],
         createdAt: new Date('2024-07-10').toISOString(),
@@ -131,7 +131,7 @@ export const fakeOpenCalls = {
         priorityProject: undefined,
         thematicAlignment: 'Sustainable land management and income generation',
         internalOwner: 'Kofi Mensah',
-        status: 'Reviewing' as OpenCallStatus,
+        status: 'Reviewing',
         notes: [],
         documents: [],
         createdAt: new Date('2024-06-20').toISOString(),
@@ -151,7 +151,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Gender & Energy Initiative',
         thematicAlignment: 'Gender equality and economic empowerment',
         internalOwner: 'Ada Okoro',
-        status: 'Intake' as OpenCallStatus,
+        status: 'Intake',
         notes: [],
         documents: [],
         createdAt: new Date('2024-11-01').toISOString(),
@@ -171,7 +171,7 @@ export const fakeOpenCalls = {
         priorityProject: undefined,
         thematicAlignment: 'Circular economy and renewable energy',
         internalOwner: 'Ibrahim Osei',
-        status: 'Go/No-Go' as OpenCallStatus,
+        status: 'Go/No-Go',
         notes: [],
         documents: [],
         createdAt: new Date('2024-05-25').toISOString(),
@@ -191,7 +191,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Climate Adaptation Initiative',
         thematicAlignment: 'Climate adaptation and capacity building',
         internalOwner: 'Grace Anane',
-        status: 'Application preparation' as OpenCallStatus,
+        status: 'Application preparation',
         notes: [],
         documents: [],
         createdAt: new Date('2024-04-10').toISOString(),
@@ -211,7 +211,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Clean Cooking for All',
         thematicAlignment: 'Technology innovation and SDG achievement',
         internalOwner: 'Solomon Gyamfi',
-        status: 'Outcome' as OpenCallStatus,
+        status: 'Outcome',
         notes: [],
         documents: [],
         createdAt: new Date('2024-03-15').toISOString(),
@@ -231,7 +231,7 @@ export const fakeOpenCalls = {
         priorityProject: 'Sustainable Agriculture Initiative',
         thematicAlignment: 'Climate change mitigation and livelihoods',
         internalOwner: 'Abena Mensah',
-        status: 'Intake' as OpenCallStatus,
+        status: 'Intake',
         notes: [],
         documents: [],
         createdAt: new Date('2024-02-20').toISOString(),
@@ -251,7 +251,7 @@ export const fakeOpenCalls = {
         priorityProject: undefined,
         thematicAlignment: 'Business sustainability and cost reduction',
         internalOwner: 'Musonda Chakwera',
-        status: 'Application submitted' as OpenCallStatus,
+        status: 'Application submitted',
         notes: [],
         documents: [],
         createdAt: new Date('2024-01-05').toISOString(),
@@ -259,22 +259,79 @@ export const fakeOpenCalls = {
       }
     ];
 
-    this.records = sampleOpenCalls;
+    const statusMap: Record<string, OpenCallStatus> = {
+      Intake: 'In Review',
+      Reviewing: 'In Review',
+      'Go/No-Go': 'Go/No-Go',
+      'Application preparation': 'Proposal Writing',
+      'Proposal Writing': 'Proposal Writing',
+      'Internal Review': 'Internal Review',
+      'Submission Stage': 'Submission Stage',
+      'Application submitted': 'Submitted',
+      Submitted: 'Submitted',
+      Outcome: 'Accepted',
+      Accepted: 'Accepted',
+      Rejected: 'Rejected'
+    };
+
+    this.records = sampleOpenCalls.map((call: any, index: number) => {
+      const normalizedStatus =
+        statusMap[call.status] || call.status || 'In Review';
+      const fundingType =
+        call.fundingType ||
+        (index % 2 === 0 ? 'Programmatic Funding' : 'Core Funding');
+      const priority =
+        call.priority ||
+        (index % 3 === 0 ? 'High' : index % 3 === 1 ? 'Medium' : 'Low');
+      const callStatus: 'Open' | 'Closed' =
+        normalizedStatus === 'Accepted' || normalizedStatus === 'Rejected'
+          ? 'Closed'
+          : call.callStatus || 'Open';
+
+      return {
+        notes: [],
+        documents: [],
+        ...call,
+        callStatus,
+        priority,
+        fundingType,
+        relatedProgram:
+          fundingType === 'Programmatic Funding'
+            ? call.relatedProgram || call.priorityProject || ''
+            : undefined,
+        status: normalizedStatus
+      } as OpenCall;
+    });
   },
 
   async getAll({
     search,
     status,
-    sector
+    sector,
+    callStatus,
+    priority,
+    fundingType
   }: {
     search?: string;
     status?: string;
     sector?: string;
+    callStatus?: string;
+    priority?: string;
+    fundingType?: string;
   }) {
     let data = [...this.records];
 
     if (status) {
       data = data.filter((item) => item.status === status);
+    }
+    if (callStatus) {
+      data = data.filter((item) => item.callStatus === callStatus);
+    }
+    if (priority) {
+      data = data.filter((item) => item.priority === priority);
+    }
+    if (fundingType) {
+      data = data.filter((item) => item.fundingType === fundingType);
     }
     if (sector) {
       data = data.filter((item) => item.sector === sector);
@@ -301,6 +358,14 @@ export const fakeOpenCalls = {
     await delay(500);
     const newItem: OpenCall = {
       ...item,
+      callStatus: item.callStatus || 'Open',
+      priority: item.priority || 'Medium',
+      fundingType: item.fundingType || 'Core Funding',
+      status: item.status || 'In Review',
+      relatedProgram:
+        (item.fundingType || 'Core Funding') === 'Programmatic Funding'
+          ? item.relatedProgram || item.priorityProject || ''
+          : undefined,
       id: Math.random().toString(36).substring(7),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -333,7 +398,7 @@ export const fakeBilateralEngagements = {
   records: [] as BilateralEngagement[],
 
   initialize() {
-    const sampleEngagements: BilateralEngagement[] = [
+    const sampleEngagements = [
       {
         id: '1',
         funder: 'World Bank Energy Sector Management Assistance Program',
@@ -341,7 +406,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Negotiation',
         priorityProject: 'Energy Access Initiative',
         internalOwner: 'Dr. James Okonkwo',
-        stage: 'Proposal under development' as BilateralEngagementStage,
+        stage: 'Proposal under development',
         notes: [],
         documents: [],
         latestEmail:
@@ -359,7 +424,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Proposal Stage',
         priorityProject: 'Sustainable Agriculture Initiative',
         internalOwner: 'Victoria Ampah',
-        stage: 'Engagement ongoing' as BilateralEngagementStage,
+        stage: 'Engagement ongoing',
         notes: [],
         documents: [],
         latestEmail:
@@ -377,7 +442,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Early Discussion',
         priorityProject: 'Clean Cooking for All',
         internalOwner: 'Ahmed Hassan',
-        stage: 'Identification' as BilateralEngagementStage,
+        stage: 'Identification',
         notes: [],
         documents: [],
         latestEmail:
@@ -395,7 +460,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Proposal Stage',
         priorityProject: 'Energy Access Initiative',
         internalOwner: 'Chidi Okafor',
-        stage: 'Decision pending' as BilateralEngagementStage,
+        stage: 'Decision pending',
         notes: [],
         documents: [],
         latestEmail:
@@ -413,7 +478,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Early Discussion',
         priorityProject: 'Water Security Project',
         internalOwner: 'Mary Mensah',
-        stage: 'Identification' as BilateralEngagementStage,
+        stage: 'Identification',
         notes: [],
         documents: [],
         latestEmail:
@@ -431,7 +496,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Negotiation',
         priorityProject: 'Clean Cooking for All',
         internalOwner: 'Kofi Owusu',
-        stage: 'Proposal under development' as BilateralEngagementStage,
+        stage: 'Proposal under development',
         notes: [],
         documents: [],
         latestEmail:
@@ -449,7 +514,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Proposal Stage',
         priorityProject: 'Climate Adaptation Initiative',
         internalOwner: 'Ama Boateng',
-        stage: 'Engagement ongoing' as BilateralEngagementStage,
+        stage: 'Engagement ongoing',
         notes: [],
         documents: [],
         latestEmail:
@@ -467,7 +532,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Proposal Stage',
         priorityProject: 'Energy Access Initiative',
         internalOwner: 'Samuel Agyeman',
-        stage: 'Paused' as BilateralEngagementStage,
+        stage: 'Paused',
         notes: [],
         documents: [],
         latestEmail:
@@ -485,7 +550,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Early Discussion',
         priorityProject: 'Water Security Project',
         internalOwner: 'Abena Osei',
-        stage: 'Closed' as BilateralEngagementStage,
+        stage: 'Closed',
         notes: [],
         documents: [],
         latestEmail:
@@ -503,7 +568,7 @@ export const fakeBilateralEngagements = {
         engagementType: 'Negotiation',
         priorityProject: 'Clean Cooking for All',
         internalOwner: 'Francis Mensah',
-        stage: 'Engagement ongoing' as BilateralEngagementStage,
+        stage: 'Engagement ongoing',
         notes: [],
         documents: [],
         latestEmail:
@@ -516,7 +581,67 @@ export const fakeBilateralEngagements = {
       }
     ];
 
-    this.records = sampleEngagements;
+    const stageMap: Record<string, BilateralEngagementStage> = {
+      Identification: 'Cold Email',
+      'Engagement ongoing': 'First Engagement',
+      'Proposal under development': 'Proposal Stage',
+      'Decision pending': 'Contracting',
+      Paused: 'No Relationship',
+      Closed: 'No Relationship',
+      'Cold Email': 'Cold Email',
+      'First Engagement': 'First Engagement',
+      'Proposal Stage': 'Proposal Stage',
+      Contracting: 'Contracting',
+      Partner: 'Partner',
+      Funder: 'Funder',
+      'No Relationship': 'No Relationship'
+    };
+
+    this.records = sampleEngagements.map(
+      (engagement: any, index: number): BilateralEngagement => {
+        const status =
+          stageMap[engagement.stage] ||
+          stageMap[engagement.status] ||
+          'Cold Email';
+        const contactName = engagement.contactPerson || faker.person.fullName();
+
+        const likelihoodToFund =
+          engagement.likelihoodToFund ?? faker.number.int({ min: 5, max: 95 });
+        const estimatedValue =
+          engagement.estimatedValue ??
+          faker.number.int({ min: 25000, max: 500000 });
+
+        const tags =
+          engagement.tags || (engagement.sector ? [engagement.sector] : []);
+
+        const currency =
+          engagement.currency || ['USD', 'KES', 'EUR', 'GBP'][index % 4];
+
+        return {
+          id: engagement.id,
+          organizationName: engagement.organizationName || engagement.funder,
+          contactPerson: contactName,
+          contactRole: engagement.contactRole || faker.person.jobTitle(),
+          email:
+            engagement.email ||
+            faker.internet.email({
+              firstName: contactName.split(' ')[0] || 'team',
+              lastName: contactName.split(' ').slice(-1)[0] || 'member'
+            }),
+          internalOwner: engagement.internalOwner,
+          status,
+          likelihoodToFund,
+          estimatedValue,
+          currency,
+          tags,
+          stagePermissions: engagement.stagePermissions || [],
+          notes: engagement.notes || [],
+          documents: engagement.documents || [],
+          createdAt: engagement.createdAt || new Date().toISOString(),
+          updatedAt: engagement.updatedAt || new Date().toISOString()
+        };
+      }
+    );
   },
 
   async getAll({
@@ -531,14 +656,14 @@ export const fakeBilateralEngagements = {
     let data = [...this.records];
 
     if (stage) {
-      data = data.filter((item) => item.stage === stage);
+      data = data.filter((item) => item.status === stage);
     }
     if (sector) {
-      data = data.filter((item) => item.sector === sector);
+      data = data.filter((item) => (item.tags || []).includes(sector));
     }
     if (search) {
       data = matchSorter(data, search, {
-        keys: ['funder', 'sector', 'internalOwner']
+        keys: ['organizationName', 'contactPerson', 'internalOwner', 'tags']
       });
     }
     return data;
@@ -558,6 +683,11 @@ export const fakeBilateralEngagements = {
     await delay(500);
     const newItem: BilateralEngagement = {
       ...item,
+      status: item.status || 'Cold Email',
+      likelihoodToFund: item.likelihoodToFund ?? 10,
+      estimatedValue: item.estimatedValue ?? 0,
+      currency: item.currency || 'USD',
+      tags: item.tags || [],
       id: Math.random().toString(36).substring(7),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

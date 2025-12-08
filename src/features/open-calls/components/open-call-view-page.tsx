@@ -1,4 +1,4 @@
-import OpenCallForm from './open-call-form';
+import CompetitiveCallDetail from './competitive-call-detail';
 import { notFound } from 'next/navigation';
 
 type OpenCallViewPageProps = {
@@ -26,10 +26,5 @@ export default async function OpenCallViewPage({
     notFound();
   }
 
-  return (
-    <OpenCallForm
-      initialData={openCall}
-      pageTitle={`Edit Open Call: ${openCall.title}`}
-    />
-  );
+  return <CompetitiveCallDetail data={openCall} />;
 }

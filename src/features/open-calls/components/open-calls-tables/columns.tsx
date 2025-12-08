@@ -62,7 +62,19 @@ export const columns: ColumnDef<OpenCall>[] = [
     header: 'Grant Type',
     cell: ({ row }) => (
       <div className='max-w-[150px] truncate' title={row.getValue('grantType')}>
-        {row.getValue('grantType')}
+        {row.getValue('grantType') || '-'}
+      </div>
+    )
+  },
+  {
+    accessorKey: 'fundingType',
+    header: 'Funding Type',
+    cell: ({ row }) => (
+      <div
+        className='max-w-[150px] truncate'
+        title={row.getValue('fundingType')}
+      >
+        {row.getValue('fundingType')}
       </div>
     )
   },
@@ -143,23 +155,65 @@ export const columns: ColumnDef<OpenCall>[] = [
     )
   },
   {
+    accessorKey: 'priority',
+    header: 'Priority',
+    cell: ({ row }) => {
+      const priority = row.getValue('priority') as string;
+      const priorityColorMap: Record<string, string> = {
+        High: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-200 dark:border-red-900',
+        Medium:
+          'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900',
+        Low: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-100 dark:border-emerald-900'
+      };
+
+      return (
+        <Badge
+          variant='outline'
+          className={
+            priorityColorMap[priority] ||
+            'border-gray-200 bg-gray-100 text-gray-800 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-100'
+          }
+        >
+          {priority}
+        </Badge>
+      );
+    },
+    enableColumnFilter: true,
+    meta: {
+      label: 'Priority',
+      variant: 'multiSelect',
+      options: [
+        { label: 'High', value: 'High' },
+        { label: 'Medium', value: 'Medium' },
+        { label: 'Low', value: 'Low' }
+      ]
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    }
+  },
+  {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
       const statusColorMap: Record<string, string> = {
-        Intake:
+        'In Review':
           'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-900/60 dark:text-slate-100 dark:border-slate-700',
-        Reviewing:
-          'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-100 dark:border-blue-900',
         'Go/No-Go':
           'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900',
-        'Application preparation':
+        'Proposal Writing':
           'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-100 dark:border-indigo-900',
-        'Application submitted':
+        'Internal Review':
+          'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-100 dark:border-blue-900',
+        'Submission Stage':
+          'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-950/50 dark:text-cyan-100 dark:border-cyan-900',
+        Submitted:
           'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-100 dark:border-emerald-900',
-        Outcome:
-          'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/50 dark:text-purple-100 dark:border-purple-900'
+        Accepted:
+          'bg-lime-100 text-lime-800 border-lime-200 dark:bg-lime-950/50 dark:text-lime-100 dark:border-lime-900',
+        Rejected:
+          'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/50 dark:text-rose-100 dark:border-rose-900'
       };
 
       const className =
@@ -180,13 +234,38 @@ export const columns: ColumnDef<OpenCall>[] = [
       label: 'Status',
       variant: 'multiSelect',
       options: [
-        { label: 'Intake', value: 'Intake' },
-        { label: 'Reviewing', value: 'Reviewing' },
+        { label: 'In Review', value: 'In Review' },
         { label: 'Go/No-Go', value: 'Go/No-Go' },
-        { label: 'Application preparation', value: 'Application preparation' },
-        { label: 'Application submitted', value: 'Application submitted' },
-        { label: 'Outcome', value: 'Outcome' }
+        { label: 'Proposal Writing', value: 'Proposal Writing' },
+        { label: 'Internal Review', value: 'Internal Review' },
+        { label: 'Submission Stage', value: 'Submission Stage' },
+        { label: 'Submitted', value: 'Submitted' },
+        { label: 'Accepted', value: 'Accepted' },
+        { label: 'Rejected', value: 'Rejected' }
       ]
+    }
+  },
+  {
+    accessorKey: 'callStatus',
+    header: 'Call Status',
+    cell: ({ row }) => {
+      const callStatus = row.getValue('callStatus') as string;
+      const callStatusMap: Record<string, string> = {
+        Open: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-100 dark:border-emerald-900',
+        Closed:
+          'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-900/60 dark:text-slate-100 dark:border-slate-700'
+      };
+      return (
+        <Badge
+          variant='outline'
+          className={
+            callStatusMap[callStatus] ||
+            'border-gray-200 bg-gray-100 text-gray-800 dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-100'
+          }
+        >
+          {callStatus}
+        </Badge>
+      );
     }
   },
   {
