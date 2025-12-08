@@ -14,10 +14,11 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const doc = await knowledgeDocumentService.findById(params.id);
+    const { id } = await params;
+    const doc = await knowledgeDocumentService.findById(id);
     if (!doc) {
       return NextResponse.json(
         { error: 'Document not found' },
