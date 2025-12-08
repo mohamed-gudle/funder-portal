@@ -30,7 +30,7 @@ import {
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
 import { navItems } from '@/constants/data';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { SignOutButton, useUser } from '@clerk/nextjs';
+import { useSession, authClient } from '@/lib/auth-client';
 import {
   IconChevronRight,
   IconChevronsDown,
@@ -44,8 +44,15 @@ import { Icons } from '../icons';
 export default function AppSidebar() {
   const pathname = usePathname();
   const { isOpen } = useMediaQuery();
-  const { user } = useUser();
+  const { data: session } = useSession();
   const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push('/auth/sign-in');
+    router.refresh();
+  };
+
   const handleSwitchTenant = (_tenantId: string) => {
     // Tenant switching functionality would be implemented here
   };
@@ -126,11 +133,11 @@ export default function AppSidebar() {
                   size='lg'
                   className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
                 >
-                  {user && (
+                  {session?.user && (
                     <UserAvatarProfile
                       className='h-8 w-8 rounded-lg'
                       showInfo
-                      user={user}
+                      user={session.user}
                     />
                   )}
                   <IconChevronsDown className='ml-auto size-4' />
@@ -144,20 +151,20 @@ export default function AppSidebar() {
               >
                 <DropdownMenuLabel className='p-0 font-normal'>
                   <div className='px-1 py-1.5'>
-                    {user && (
+                    {session?.user && (
                       <UserAvatarProfile
                         className='h-8 w-8 rounded-lg'
                         showInfo
-                        user={user}
+                        user={session.user}
                       />
                     )}
                   </div>
                 </DropdownMenuLabel>
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
                   <IconLogout className='mr-2 h-4 w-4' />
-                  <SignOutButton redirectUrl='/auth/sign-in' />
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
