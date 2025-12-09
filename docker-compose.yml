@@ -1,0 +1,51 @@
+services:
+  app:
+    image: funders-portal:latest
+    container_name: funders-portal
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Next.js Configuration
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Disable Next.js telemetry
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - funders-portal-network
+
+  # MongoDB service (optional - uncomment if needed)
+  # mongodb:
+  #   image: mongo:7
+  #   container_name: funders-portal-mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=changeme
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   networks:
+  #     - funders-portal-network
+  #   restart: unless-stopped
+
+networks:
+  funders-portal-network:
+    driver: bridge
+
+# volumes:
+#   mongodb_data:
+
