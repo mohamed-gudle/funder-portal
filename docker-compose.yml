@@ -39,7 +39,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=changeme
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_data:/data/funders-portal
     networks:
       - funders-portal-network
     restart: unless-stopped

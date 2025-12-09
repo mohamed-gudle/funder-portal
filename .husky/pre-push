@@ -1,1 +1,20 @@
-pnpm run build
+# #!/usr/bin/env sh
+
+# # Load nvm to get the correct Node.js version
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# # Use Node version from .nvmrc if it exists
+# [ -f .nvmrc ] && nvm use
+
+# # Enable corepack to get pnpm
+# corepack enable >/dev/null 2>&1 || true
+
+# # Change to the repository root (in case hook is called from subdirectory)
+# cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# # Ensure dependencies are installed (in case they're missing)
+# [ ! -d node_modules ] && pnpm install --frozen-lockfile
+
+# # Run the build - pnpm run will handle PATH correctly
+# pnpm run build

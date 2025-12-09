@@ -5,7 +5,7 @@
 
 dockerPipeline(
     dockerImage: 'funders-portal',
-    appPort: '3000',
+    appPort: 30800',
     containerName: 'funders-portal',
     infisicalPath: '/funders-portal/',
     deploymentMethod: 'docker-compose',
