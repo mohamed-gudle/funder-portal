@@ -13,6 +13,9 @@ dockerPipeline(
     cleanupOldImages: true,
     keepImageVersions: '3',
     project: 'afcen',
-    healthCheckUrl: '/api/health'
+    healthCheckUrl: '/',
+
+    //react
+    
 )
 
