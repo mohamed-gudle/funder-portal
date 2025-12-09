@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { teamMemberService } from '@/server/services/team-member.service';
-import { clerkClient } from '@clerk/nextjs/server';
 
 export async function GET(request: Request) {
   try {
@@ -9,34 +8,12 @@ export async function GET(request: Request) {
 
     const teamMembers = await teamMemberService.findAll({ search });
 
-    // Fetch Clerk users to get profile photos
-    const client = await clerkClient();
     const genericPhoto = 'https://api.dicebear.com/7.x/avataaars/svg?seed=';
 
-    const enrichedMembers = await Promise.all(
-      teamMembers.map(async (member: any) => {
-        try {
-          // Try to find Clerk user by email
-          const clerkUsers = await client.users.getUserList({
-            emailAddress: [member.email]
-          });
-
-          const clerkUser = clerkUsers.data[0];
-
-          return {
-            ...JSON.parse(JSON.stringify(member)),
-            profilePhoto:
-              clerkUser?.imageUrl || `${genericPhoto}${member.email}`
-          };
-        } catch (error) {
-          // If Clerk lookup fails, use generic photo
-          return {
-            ...JSON.parse(JSON.stringify(member)),
-            profilePhoto: `${genericPhoto}${member.email}`
-          };
-        }
-      })
-    );
+    const enrichedMembers = teamMembers.map((member: any) => ({
+      ...JSON.parse(JSON.stringify(member)),
+      profilePhoto: `${genericPhoto}${member.email}`
+    }));
 
     return NextResponse.json(enrichedMembers);
   } catch (error) {

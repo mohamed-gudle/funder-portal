@@ -1,56 +1,48 @@
 import connectDB from '@/lib/db';
 import TeamMember, { ITeamMember } from '../models/team-member.model';
-import { clerkClient } from '@clerk/nextjs/server';
 import { emailClient } from '@/lib/email/emailClient';
 import * as teamInvitationEmail from '@/lib/email/templates/teamInvitationEmail';
+import { randomUUID } from 'crypto';
 
 export class TeamMemberService {
   async create(data: Partial<ITeamMember>) {
     await connectDB();
 
     // 1. Create in MongoDB
-    const teamMember = await TeamMember.create(data);
+    const inviteToken = data.email ? randomUUID() : undefined;
+    const teamMember = await TeamMember.create({
+      ...data,
+      invitationToken: inviteToken,
+      invitationSentAt: inviteToken ? new Date() : undefined
+    });
 
-    // 2. Invite via Clerk (if email is present)
+    // 2. Send invitation email that points to our Better Auth sign-up flow
     if (data.email) {
       try {
-        const client = await clerkClient();
-        const invitation = await client.invitations.createInvitation({
-          emailAddress: data.email,
-          publicMetadata: {
-            teamMemberId: teamMember._id.toString(),
-            role: data.position
-          }
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const invitationUrl = `${baseUrl}/sign-up?email=${encodeURIComponent(
+          data.email
+        )}${inviteToken ? `&invite=${inviteToken}` : ''}&teamMemberId=${teamMember._id.toString()}`;
+
+        await emailClient.send({
+          to: data.email,
+          subject: teamInvitationEmail.subject({
+            name: data.name || '',
+            position: data.position || '',
+            invitationLink: invitationUrl,
+            organizationName: process.env.NEXT_PUBLIC_ORG_NAME
+          }),
+          html: teamInvitationEmail.html({
+            name: data.name || '',
+            position: data.position || '',
+            invitationLink: invitationUrl,
+            organizationName: process.env.NEXT_PUBLIC_ORG_NAME
+          })
         });
-
-        // 3. Send custom email notification
-        try {
-          const invitationUrl =
-            invitation.url || `${process.env.NEXT_PUBLIC_APP_URL}/sign-up`;
-
-          await emailClient.send({
-            to: data.email,
-            subject: teamInvitationEmail.subject({
-              name: data.name || '',
-              position: data.position || '',
-              invitationLink: invitationUrl,
-              organizationName: process.env.NEXT_PUBLIC_ORG_NAME
-            }),
-            html: teamInvitationEmail.html({
-              name: data.name || '',
-              position: data.position || '',
-              invitationLink: invitationUrl,
-              organizationName: process.env.NEXT_PUBLIC_ORG_NAME
-            })
-          });
-        } catch (emailError) {
-          console.error('Failed to send email notification:', emailError);
-          // Don't fail the whole operation if email fails
-        }
       } catch (error) {
-        console.error('Failed to send Clerk invitation:', error);
+        console.error('Failed to send Better Auth invitation:', error);
         // We don't rollback the DB creation, just log the error.
-        // In a production app, we might want to handle this more gracefully.
       }
     }
 

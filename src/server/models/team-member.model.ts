@@ -6,6 +6,8 @@ export interface ITeamMember extends Document {
   phoneNumber: string;
   speciality: string;
   position: string;
+  invitationToken?: string;
+  invitationSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,7 +18,9 @@ const TeamMemberSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: true },
     speciality: { type: String, required: true },
-    position: { type: String, required: true }
+    position: { type: String, required: true },
+    invitationToken: { type: String },
+    invitationSentAt: { type: Date }
   },
   {
     timestamps: true,
