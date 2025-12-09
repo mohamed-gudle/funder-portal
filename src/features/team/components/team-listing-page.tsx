@@ -9,14 +9,14 @@ import Link from 'next/link';
 import TeamTable from './team-table';
 
 type ParamsProps = {
-  searchParams: {
+  searchParams: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 };
 
 export default async function TeamListingPage({ searchParams }: ParamsProps) {
-  const search =
-    typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const params = await searchParams;
+  const search = typeof params.search === 'string' ? params.search : undefined;
 
   const rawData = await teamMemberService.findAll({ search });
   const data = JSON.parse(JSON.stringify(rawData)); // Serialize for client component

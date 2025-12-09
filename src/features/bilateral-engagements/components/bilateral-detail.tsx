@@ -14,10 +14,14 @@ import {
   Edit,
   Calendar,
   DollarSign,
-  Tag
+  Tag,
+  Thermometer,
+  FileText,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
 
 const engagementStages = [
   'Cold Email',
@@ -36,6 +40,10 @@ export function BilateralDetail({ data }: { data: BilateralEngagement }) {
     : data.tags
       ? [data.tags]
       : [];
+  const notes = Array.isArray((data as any).notes) ? (data as any).notes : [];
+  const documents = Array.isArray((data as any).documents)
+    ? (data as any).documents
+    : [];
 
   return (
     <div className='space-y-6'>
@@ -59,7 +67,7 @@ export function BilateralDetail({ data }: { data: BilateralEngagement }) {
           variant='outline'
           onClick={() =>
             router.push(
-              `/dashboard/bilateral-engagements/${data.id || data._id}/edit`
+              `/dashboard/bilateral-engagements/${data.id || (data as any)._id}/edit`
             )
           }
         >
@@ -155,6 +163,117 @@ export function BilateralDetail({ data }: { data: BilateralEngagement }) {
             </CardContent>
           </Card>
 
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Engagement Health</CardTitle>
+              </CardHeader>
+              <CardContent className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+                <DetailItem
+                  icon={<Thermometer className='h-4 w-4 text-gray-500' />}
+                  label='Temperature'
+                  value={
+                    (data as any).temperatureLabel ? (
+                      <Badge variant='secondary'>
+                        {(data as any).temperatureLabel}
+                      </Badge>
+                    ) : (
+                      'Not set'
+                    )
+                  }
+                />
+                <DetailItem
+                  icon={<Calendar className='h-4 w-4 text-gray-500' />}
+                  label='Likelihood to Fund'
+                  value={
+                    typeof data.likelihoodToFund === 'number'
+                      ? `${data.likelihoodToFund}%`
+                      : 'N/A'
+                  }
+                />
+                <DetailItem
+                  icon={<DollarSign className='h-4 w-4 text-gray-500' />}
+                  label='Estimated Value'
+                  value={
+                    data.estimatedValue
+                      ? `${data.currency || ''} ${data.estimatedValue}`
+                      : 'N/A'
+                  }
+                />
+                <DetailItem
+                  icon={<Clock className='h-4 w-4 text-gray-500' />}
+                  label='Last Updated'
+                  value={
+                    data.updatedAt
+                      ? formatDate(data.updatedAt)
+                      : 'Not available'
+                  }
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Documents</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-2'>
+                {documents.length === 0 && (
+                  <p className='text-sm text-gray-500'>
+                    No documents uploaded.
+                  </p>
+                )}
+                {documents.map((doc: any) => (
+                  <div
+                    key={doc.id || doc._id}
+                    className='flex items-center justify-between rounded-md border p-2'
+                  >
+                    <div className='flex items-center gap-2'>
+                      <FileText className='h-4 w-4 text-gray-500' />
+                      <span className='text-sm text-gray-800'>
+                        {doc.name || 'Document'}
+                      </span>
+                    </div>
+                    {doc.url && (
+                      <Link
+                        href={doc.url}
+                        className='text-sm text-blue-600 hover:underline'
+                      >
+                        View
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notes</CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-2'>
+              {notes.length === 0 && (
+                <p className='text-sm text-gray-500'>No notes captured yet.</p>
+              )}
+              {notes.map((note: any) => (
+                <div
+                  key={note.id || note._id}
+                  className='rounded-md border p-3 shadow-sm'
+                >
+                  <div className='flex items-center justify-between text-xs text-gray-500'>
+                    <span className='font-medium text-gray-700'>
+                      {note.author || 'Unknown'}
+                    </span>
+                    {note.createdAt && (
+                      <span>{formatDate(note.createdAt)}</span>
+                    )}
+                  </div>
+                  <p className='mt-1 text-sm text-gray-800'>{note.content}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Counterparty Contacts</CardTitle>
@@ -234,4 +353,13 @@ function DetailItem({
       <div className='text-sm text-gray-900'>{value}</div>
     </div>
   );
+}
+
+function formatDate(input: string | Date) {
+  const date = typeof input === 'string' ? new Date(input) : input;
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 }

@@ -4,6 +4,7 @@ import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
 import { FormSelectAvatar } from '@/components/forms/form-select-avatar';
 import { FormTextarea } from '@/components/forms/form-textarea';
+import { FormFileUpload } from '@/components/forms/form-file-upload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -39,7 +40,8 @@ const formSchema = z.object({
   estimatedValue: z.string().optional(),
   currency: z.enum(['USD', 'KES', 'EUR', 'GBP']),
   tags: z.string().optional(),
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  documents: z.array(z.any()).optional().default([])
 });
 
 export default function BilateralForm({
@@ -66,7 +68,8 @@ export default function BilateralForm({
       estimatedValue: initialData?.estimatedValue?.toString() || '',
       currency: initialData?.currency || 'USD',
       tags: (initialData?.tags || []).join(', '),
-      notes: ''
+      notes: '',
+      documents: []
     }
   });
 
@@ -74,7 +77,8 @@ export default function BilateralForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const { tags, likelihoodToFund, estimatedValue, ...rest } = values;
+      const { tags, likelihoodToFund, estimatedValue, documents, ...rest } =
+        values;
       const data = {
         ...rest,
         internalOwner: values.internalOwner || '',
@@ -94,7 +98,8 @@ export default function BilateralForm({
 
       if (initialData) {
         // Update existing engagement
-        const response = await fetch(`${apiUrl}/${initialData.id}`, {
+        const engagementId = initialData.id || (initialData as any)._id;
+        const response = await fetch(`${apiUrl}/${engagementId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -107,6 +112,7 @@ export default function BilateralForm({
         }
 
         toast.success('Engagement updated successfully');
+        await uploadDocuments(documents, engagementId);
       } else {
         // Create new engagement
         const response = await fetch(apiUrl, {
@@ -121,7 +127,9 @@ export default function BilateralForm({
           throw new Error('Failed to create engagement');
         }
 
+        const created = await response.json();
         toast.success('Engagement created successfully');
+        await uploadDocuments(documents, created.id || created._id);
       }
       router.push('/dashboard/bilateral-engagements');
       router.refresh();
@@ -129,6 +137,26 @@ export default function BilateralForm({
       console.error('Error:', error);
       toast.error('Something went wrong');
     }
+  }
+
+  async function uploadDocuments(
+    files: File[] | undefined,
+    engagementId?: string
+  ) {
+    if (!files?.length || !engagementId) return;
+
+    await Promise.all(
+      files.map(async (file) => {
+        await fetch(`/api/bilateral-engagements/${engagementId}/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: file.name,
+            url: file.name
+          })
+        });
+      })
+    );
   }
 
   return (
@@ -246,6 +274,27 @@ export default function BilateralForm({
               maxLength: 2000,
               showCharCount: true,
               rows: 6
+            }}
+          />
+
+          <FormFileUpload
+            control={form.control}
+            name='documents'
+            label='Documents'
+            description='Upload MOUs, proposals, or correspondence.'
+            config={{
+              maxSize: 10 * 1024 * 1024,
+              maxFiles: 5,
+              acceptedTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain'
+              ]
             }}
           />
 

@@ -81,14 +81,25 @@ export class BilateralEngagementService {
 
     const newDocument = {
       id: Math.random().toString(36).substring(7),
-      name: document.name,
-      url: document.url,
+      name: document.name || 'Attachment',
+      url: document.url || '',
       uploadedAt: new Date()
     };
 
-    engagement.documents.push(newDocument);
+    const existingDocuments = Array.isArray(engagement.documents)
+      ? engagement.documents
+      : [];
+
+    const normalizedNotes = Array.isArray(engagement.notes)
+      ? engagement.notes.filter((n: any) => n && typeof n === 'object')
+      : [];
+
+    engagement.set('documents', [...existingDocuments, newDocument]);
+    engagement.set('notes', normalizedNotes);
+    engagement.markModified('notes');
+
     await engagement.save();
-    return engagement;
+    return engagement.toObject();
   }
 }
 

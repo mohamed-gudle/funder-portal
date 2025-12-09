@@ -22,19 +22,16 @@ export default async function Page({ searchParams }: pageProps) {
   await searchParamsCache.parse(searchParams);
 
   return (
-    <PageContainer>
-      <div className='w-full max-w-full min-w-0'>
-        <div className='flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+    <PageContainer scrollable={false}>
+      <div className='flex h-full flex-col space-y-4'>
+        <div className='flex items-center justify-between'>
           <Heading
             title='Bilateral Engagements'
             description='Track bilateral funding engagements and conversations.'
           />
           <Link
             href='/dashboard/bilateral-engagements/new'
-            className={
-              buttonVariants({ variant: 'default' }) +
-              ' w-full shrink-0 justify-center whitespace-nowrap sm:w-auto'
-            }
+            className={buttonVariants({ variant: 'default' })}
           >
             <Plus className='mr-2 h-4 w-4' /> Add New
           </Link>
