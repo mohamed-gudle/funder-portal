@@ -54,7 +54,7 @@ export function SignInForm() {
       }
 
       toast.success('Welcome back!');
-      router.push('/dashboard');
+      router.push('/dashboard/overview');
       router.refresh();
     } catch (error) {
       toast.error('An unexpected error occurred');
@@ -104,15 +104,7 @@ export function SignInForm() {
             name='password'
             render={({ field }) => (
               <FormItem>
-                <div className='flex items-center justify-between'>
-                  <FormLabel>Password</FormLabel>
-                  <Link
-                    href='/auth/forgot-password'
-                    className='text-muted-foreground hover:text-primary text-sm'
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
                     {...field}

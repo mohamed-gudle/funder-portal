@@ -13,7 +13,7 @@ export default function SignInViewPage() {
       <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
         <div className='absolute inset-0 bg-white' />
         <div className='relative z-20 flex items-center text-lg font-medium'>
-          <Image src='/logo.svg' alt='logo' width={28} height={28} />
+          <Image src='/logo.svg' alt='logo' width={150} height={150} />
         </div>
         <div className='relative z-20 mt-auto'></div>
       </div>
