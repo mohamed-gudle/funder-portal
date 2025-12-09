@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -22,7 +22,7 @@ const formSchema = z.object({
 });
 
 export default function ProfileEditForm() {
-  const { user, isLoaded } = useUser();
+  const { data: session, isPending } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [teamMember, setTeamMember] = useState<any>(null);
@@ -38,26 +38,26 @@ export default function ProfileEditForm() {
   });
 
   useEffect(() => {
-    if (isLoaded && user) {
+    if (!isPending && session?.user) {
       // Fetch team member data by email
       const fetchTeamMember = async () => {
         try {
           const res = await fetch(
-            `/api/team/by-email?email=${encodeURIComponent(user.primaryEmailAddress?.emailAddress || '')}`
+            `/api/team/by-email?email=${encodeURIComponent(session.user.email || '')}`
           );
           if (res.ok) {
             const data = await res.json();
             setTeamMember(data);
             form.reset({
-              name: data.name || user.fullName || '',
+              name: data.name || session.user.name || '',
               phoneNumber: data.phoneNumber || '',
               speciality: data.speciality || '',
               position: data.position || ''
             });
           } else {
-            // No team member data, use Clerk data
+            // No team member data, use session data
             form.reset({
-              name: user.fullName || '',
+              name: session.user.name || '',
               phoneNumber: '',
               speciality: '',
               position: ''
@@ -66,7 +66,7 @@ export default function ProfileEditForm() {
         } catch (error) {
           console.error('Error fetching team member:', error);
           form.reset({
-            name: user.fullName || '',
+            name: session.user.name || '',
             phoneNumber: '',
             speciality: '',
             position: ''
@@ -76,19 +76,13 @@ export default function ProfileEditForm() {
 
       fetchTeamMember();
     }
-  }, [isLoaded, user, form]);
+  }, [isPending, session, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) return;
+    if (!session?.user) return;
 
     try {
       setLoading(true);
-
-      // Update Clerk user name
-      await user.update({
-        firstName: values.name.split(' ')[0],
-        lastName: values.name.split(' ').slice(1).join(' ') || undefined
-      });
 
       // Update or create team member
       if (teamMember) {
@@ -110,11 +104,11 @@ export default function ProfileEditForm() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: values.name,
-            email: user.primaryEmailAddress?.emailAddress,
+            email: session.user.email,
             phoneNumber: values.phoneNumber || '',
             speciality: values.speciality || 'General',
             position: values.position || 'Team Member',
-            profilePhoto: user.imageUrl
+            profilePhoto: session.user.image || ''
           })
         });
         if (!res.ok) throw new Error('Failed to create');
@@ -130,7 +124,7 @@ export default function ProfileEditForm() {
     }
   }
 
-  if (!isLoaded || !user) {
+  if (isPending || !session?.user) {
     return <div>Loading...</div>;
   }
 
