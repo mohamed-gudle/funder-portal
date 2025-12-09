@@ -36,9 +36,11 @@ ENV MONGODB_URI=${MONGODB_URI}
 # These are only used during build to prevent errors
 ARG BETTER_AUTH_SECRET=build-time-secret-change-in-production
 ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+# Provide dummy Clerk keys for build (will be overridden at runtime)
+# These need to be valid format for Clerk to initialize during build
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_build_time_dummy_key_replace_in_production_1234567890abcdef
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-ARG CLERK_SECRET_KEY=
+ARG CLERK_SECRET_KEY=sk_test_build_time_dummy_key_replace_in_production_1234567890abcdef
 ENV CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
 
 # Build the application
