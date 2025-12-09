@@ -27,6 +27,11 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Set a default MONGODB_URI for build (can be overridden at runtime)
+# This prevents build-time errors when the env var is not available
+ARG MONGODB_URI=mongodb://localhost:27017/funders-portal
+ENV MONGODB_URI=${MONGODB_URI}
+
 # Build the application
 RUN pnpm build
 
