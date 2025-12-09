@@ -4,7 +4,6 @@ import { FormInput } from '@/components/forms/form-input';
 import { FormSelect } from '@/components/forms/form-select';
 import { FormSelectAvatar } from '@/components/forms/form-select-avatar';
 import { FormTextarea } from '@/components/forms/form-textarea';
-import { FormFileUpload } from '@/components/forms/form-file-upload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -40,8 +39,7 @@ const formSchema = z.object({
   estimatedValue: z.string().optional(),
   currency: z.enum(['USD', 'KES', 'EUR', 'GBP']),
   tags: z.string().optional(),
-  notes: z.string().optional(),
-  documents: z.array(z.any()).optional().default([])
+  notes: z.string().optional()
 });
 
 export default function BilateralForm({
@@ -68,8 +66,7 @@ export default function BilateralForm({
       estimatedValue: initialData?.estimatedValue?.toString() || '',
       currency: initialData?.currency || 'USD',
       tags: (initialData?.tags || []).join(', '),
-      notes: '',
-      documents: []
+      notes: ''
     }
   });
 
@@ -77,8 +74,7 @@ export default function BilateralForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const { tags, likelihoodToFund, estimatedValue, documents, ...rest } =
-        values;
+      const { tags, likelihoodToFund, estimatedValue, ...rest } = values;
       const data = {
         ...rest,
         internalOwner: values.internalOwner || '',
@@ -112,7 +108,7 @@ export default function BilateralForm({
         }
 
         toast.success('Engagement updated successfully');
-        await uploadDocuments(documents, engagementId);
+        // Documents handled separately via file upload component
       } else {
         // Create new engagement
         const response = await fetch(apiUrl, {
@@ -129,7 +125,7 @@ export default function BilateralForm({
 
         const created = await response.json();
         toast.success('Engagement created successfully');
-        await uploadDocuments(documents, created.id || created._id);
+        // Documents handled separately via file upload component
       }
       router.push('/dashboard/bilateral-engagements');
       router.refresh();
@@ -274,27 +270,6 @@ export default function BilateralForm({
               maxLength: 2000,
               showCharCount: true,
               rows: 6
-            }}
-          />
-
-          <FormFileUpload
-            control={form.control}
-            name='documents'
-            label='Documents'
-            description='Upload MOUs, proposals, or correspondence.'
-            config={{
-              maxSize: 10 * 1024 * 1024,
-              maxFiles: 5,
-              acceptedTypes: [
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/vnd.ms-powerpoint',
-                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                'text/plain'
-              ]
             }}
           />
 

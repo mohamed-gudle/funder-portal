@@ -7,9 +7,9 @@ export const metadata = {
 };
 
 type ParamsProps = {
-  searchParams: {
+  searchParams: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 };
 
 export default async function Page({ searchParams }: ParamsProps) {

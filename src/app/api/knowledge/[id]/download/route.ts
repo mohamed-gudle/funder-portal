@@ -48,7 +48,7 @@ export async function GET(
       headers['Content-Length'] = object.ContentLength.toString();
     }
 
-    return new NextResponse(buffer, { headers });
+    return new NextResponse(new Uint8Array(buffer), { headers });
   } catch (error) {
     console.error('Error downloading knowledge document:', error);
     return NextResponse.json(

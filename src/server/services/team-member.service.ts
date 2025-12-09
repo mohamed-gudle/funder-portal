@@ -21,22 +21,30 @@ export class TeamMemberService {
       try {
         const baseUrl =
           process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const invitationUrl = `${baseUrl}/sign-up?email=${encodeURIComponent(
-          data.email
-        )}${inviteToken ? `&invite=${inviteToken}` : ''}&teamMemberId=${teamMember._id.toString()}`;
+        const invitationUrl = new URL('/auth/sign-up', baseUrl);
+
+        invitationUrl.searchParams.set('email', data.email);
+        invitationUrl.searchParams.set(
+          'teamMemberId',
+          teamMember._id.toString()
+        );
+
+        if (inviteToken) {
+          invitationUrl.searchParams.set('invite', inviteToken);
+        }
 
         await emailClient.send({
           to: data.email,
           subject: teamInvitationEmail.subject({
             name: data.name || '',
             position: data.position || '',
-            invitationLink: invitationUrl,
+            invitationLink: invitationUrl.toString(),
             organizationName: process.env.NEXT_PUBLIC_ORG_NAME
           }),
           html: teamInvitationEmail.html({
             name: data.name || '',
             position: data.position || '',
-            invitationLink: invitationUrl,
+            invitationLink: invitationUrl.toString(),
             organizationName: process.env.NEXT_PUBLIC_ORG_NAME
           })
         });

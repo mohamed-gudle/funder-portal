@@ -44,18 +44,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    const program = await Program.create({
+    const created = await Program.create({
       ...body,
       status: body.status || 'Active'
     });
 
-    return NextResponse.json(
-      {
-        ...program.toJSON(),
-        id: program._id.toString()
-      },
-      { status: 201 }
-    );
+    const program = Array.isArray(created) ? created[0] : created;
+
+    const formatted = {
+      ...(program.toObject ? program.toObject() : program),
+      id: program._id.toString()
+    };
+
+    return NextResponse.json(formatted, { status: 201 });
   } catch (error) {
     console.error('Error creating program:', error);
     return NextResponse.json(

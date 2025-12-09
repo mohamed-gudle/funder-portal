@@ -39,7 +39,7 @@ export function ChevronPath({
               >
                 <div className='flex w-full items-center px-6 py-4 text-sm font-medium'>
                   {/* Icon / Status Indicator */}
-                  <span className="${isCompleted ? 'bg-primary border-primary' : ''} ${isCurrent ? 'border-primary' : ''} ${!isCompleted && !isCurrent ? 'border-gray-300' : ''} mr-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2">
+                  <span className="${isCompleted ? 'bg-primary border-primary' : ''} ${isCurrent ? 'border-primary' : ''} ${!isCompleted && !isCurrent ? 'border-gray-300' : ''} mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2">
                     {isCompleted && (
                       <Check
                         className='h-5 w-5 text-white'

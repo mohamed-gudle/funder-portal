@@ -593,9 +593,9 @@ function ActivityTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[160px]'>Type</TableHead>
+                  <TableHead className='w-40'>Type</TableHead>
                   <TableHead>Summary</TableHead>
-                  <TableHead className='w-[160px]'>Author</TableHead>
+                  <TableHead className='w-40'>Author</TableHead>
                   <TableHead className='w-[180px]'>Created</TableHead>
                 </TableRow>
               </TableHeader>

@@ -1,9 +1,10 @@
 import connectDB from '@/lib/db';
 import { Opportunity } from '@/types/modules';
-import { FilterQuery } from 'mongoose';
 import OpportunityResult, {
   IOpportunityResult
 } from '../models/opportunity-result.model';
+
+type FilterQuery<T> = Record<string, any>;
 
 type SaveFinderPayload = {
   opportunities: Opportunity[];
