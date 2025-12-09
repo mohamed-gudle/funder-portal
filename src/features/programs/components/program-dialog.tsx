@@ -84,59 +84,58 @@ export function ProgramDialog({
             Add a new program to link with funding opportunities.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Program name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+        <Form
+          form={form}
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='space-y-4'
+        >
+          <FormField
+            control={form.control}
+            name='name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder='Program name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='description'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder='Describe the program...' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='sectors'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sectors (comma separated)</FormLabel>
+                <FormControl>
+                  <Input placeholder='Health, Education, Tech' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <DialogFooter>
+            <Button type='submit' disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               )}
-            />
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Describe the program...'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='sectors'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sectors (comma separated)</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Health, Education, Tech' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type='submit' disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting && (
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                )}
-                Create
-              </Button>
-            </DialogFooter>
-          </form>
+              Create
+            </Button>
+          </DialogFooter>
         </Form>
       </DialogContent>
     </Dialog>

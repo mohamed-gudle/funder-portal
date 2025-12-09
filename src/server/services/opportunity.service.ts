@@ -4,8 +4,6 @@ import OpportunityResult, {
   IOpportunityResult
 } from '../models/opportunity-result.model';
 
-type FilterQuery<T> = Record<string, any>;
-
 type SaveFinderPayload = {
   opportunities: Opportunity[];
   query?: string;
@@ -68,7 +66,7 @@ class OpportunityService {
 
   async findAll(search?: string) {
     await connectDB();
-    const query: FilterQuery<IOpportunityResult> = {};
+    const query: Record<string, any> = {};
 
     if (search) {
       query.$or = [
