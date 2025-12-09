@@ -115,7 +115,9 @@ const BilateralEngagementSchema: Schema = new Schema(
   }
 );
 
-BilateralEngagementSchema.virtual('temperatureLabel').get(function () {
+BilateralEngagementSchema.virtual('temperatureLabel').get(function (
+  this: IBilateralEngagement
+) {
   if (this.likelihoodToFund >= 70) return 'Hot';
   if (this.likelihoodToFund >= 30) return 'Warm';
   return 'Cold';

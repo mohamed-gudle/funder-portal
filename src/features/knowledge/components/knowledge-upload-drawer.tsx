@@ -39,9 +39,7 @@ const formSchema = z.object({
   region: z.string().optional(),
   year: z.string().optional(),
   tags: z.string().optional(),
-  sensitivity: z
-    .enum(['public', 'internal', 'confidential'])
-    .default('internal'),
+  sensitivity: z.enum(['public', 'internal', 'confidential']),
   sourceUrl: z.string().url().optional().or(z.literal('')),
   file: z.array(z.any()).min(1, { message: 'Please upload a document.' })
 });

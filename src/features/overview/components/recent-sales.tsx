@@ -54,7 +54,9 @@ export async function RecentSales() {
               </div>
               <div className='flex items-center justify-between'>
                 <Badge variant='outline' className='text-xs'>
-                  {call.sector}
+                  {Array.isArray(call.sector)
+                    ? call.sector.join(', ')
+                    : call.sector || 'Not specified'}
                 </Badge>
                 <Badge
                   variant={statusColors[call.status] || 'default'}

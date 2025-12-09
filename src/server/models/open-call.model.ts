@@ -32,13 +32,13 @@ export type FundingType = 'Core Funding' | 'Programmatic Funding';
 
 export interface IStagePermission {
   stage: CallStage;
-  assignees: Types.ObjectId[];
+  assignees: Array<Types.ObjectId | string>;
 }
 
 export interface IOpenCall extends Document {
   title: string;
   funder?: string;
-  sector?: string;
+  sector: string[];
   grantType?: string;
   budget?: string;
   deadline: Date;
@@ -83,7 +83,7 @@ const StagePermissionSchema = new Schema<IStagePermission>(
     },
     assignees: [
       {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.Mixed,
         ref: 'User'
       }
     ]
@@ -95,7 +95,16 @@ const OpenCallSchema: Schema = new Schema(
   {
     title: { type: String, required: true },
     funder: { type: String },
-    sector: { type: String },
+    sector: {
+      type: [String],
+      default: [],
+      set: (value: unknown) => {
+        if (Array.isArray(value)) {
+          return value.filter(Boolean);
+        }
+        return value ? [value as string] : [];
+      }
+    },
     grantType: { type: String },
     budget: { type: String },
     deadline: { type: Date, required: true },
@@ -123,8 +132,7 @@ const OpenCallSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Program',
       required: function () {
-        // @ts-expect-error - Mongoose provides this context
-        return this.fundingType === 'Programmatic Funding';
+        return (this as any).fundingType === 'Programmatic Funding';
       }
     },
     status: {
@@ -162,7 +170,12 @@ OpenCallSchema.methods.canUserEdit = function (
     return true;
   }
 
-  return permission.assignees.some((id) => id.equals(userId));
+  return permission.assignees.some((id) => {
+    if (typeof id === 'string') {
+      return id === userId.toString();
+    }
+    return id.equals(userId);
+  });
 };
 
 const OpenCall: Model<IOpenCall> =

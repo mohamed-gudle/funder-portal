@@ -16,6 +16,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { ChevronPath } from '@/components/ui/chevron-path';
+import { FormMultiSelectAvatar } from '@/components/forms/form-multi-select-avatar';
+import { Separator } from '@/components/ui/separator';
+import { FormCheckboxGroup } from '@/components/forms/form-checkbox-group';
 
 const callStages = [
   'In Review',
@@ -32,14 +35,13 @@ const formSchema = z
   .object({
     title: z.string().min(2, { message: 'Title is required.' }),
     funder: z.string().optional(),
-    sector: z.string().optional(),
+    sector: z.array(z.string()).optional(),
     grantType: z.string().optional(),
     budget: z.string().optional(),
     deadline: z.string().min(1, { message: 'Deadline is required.' }),
     url: z.string().url().optional().or(z.literal('')),
     description: z.string().optional(),
     priorityProject: z.string().optional(),
-    thematicAlignment: z.string().optional(),
     internalOwner: z
       .string()
       .min(1, { message: 'Internal owner is required.' }),
@@ -48,7 +50,15 @@ const formSchema = z
     fundingType: z.enum(['Core Funding', 'Programmatic Funding']),
     relatedProgram: z.string().optional(),
     status: z.enum(callStages),
-    documents: z.array(z.any()).optional()
+    documents: z.array(z.any()).optional(),
+    stagePermissions: z
+      .array(
+        z.object({
+          stage: z.enum(callStages).optional(),
+          assignees: z.array(z.string()).optional()
+        })
+      )
+      .optional()
   })
   .refine(
     (data) =>
@@ -70,12 +80,30 @@ export default function OpenCallForm({
   const router = useRouter();
   const { teamMembers } = useTeamMembers();
 
+  // Pre-populate stage permissions to ensure all stages are present in the form state
+  const defaultStagePermissions = callStages.map((stage) => {
+    const existing = initialData?.stagePermissions?.find(
+      (p) => p.stage === stage
+    );
+    return {
+      stage,
+      assignees:
+        existing?.assignees?.map((a: any) =>
+          typeof a === 'object' ? a._id || a.id : a
+        ) || []
+    };
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: initialData?.title || '',
       funder: initialData?.funder || '',
-      sector: initialData?.sector || '',
+      sector: Array.isArray(initialData?.sector)
+        ? initialData?.sector
+        : initialData?.sector
+          ? [initialData.sector]
+          : [],
       grantType: initialData?.grantType || '',
       budget: initialData?.budget || '',
       deadline: initialData?.deadline
@@ -84,14 +112,14 @@ export default function OpenCallForm({
       url: initialData?.url || '',
       description: initialData?.description || '',
       priorityProject: initialData?.priorityProject || '',
-      thematicAlignment: initialData?.thematicAlignment || '',
       internalOwner: initialData?.internalOwner || '',
       callStatus: initialData?.callStatus || 'Open',
       priority: initialData?.priority || 'Medium',
       fundingType: initialData?.fundingType || 'Core Funding',
       relatedProgram: initialData?.relatedProgram || '',
       status: initialData?.status || 'In Review',
-      documents: []
+      documents: [],
+      stagePermissions: defaultStagePermissions
     }
   });
 
@@ -102,6 +130,8 @@ export default function OpenCallForm({
       const { documents, ...rest } = values;
       const data = {
         ...rest,
+        sector: values.sector || [],
+        // Ensure grantType etc are strings even if not required by schema but by DB
         grantType: values.grantType || '',
         budget: values.budget || '',
         description: values.description || '',
@@ -109,7 +139,14 @@ export default function OpenCallForm({
         relatedProgram:
           values.fundingType === 'Programmatic Funding'
             ? values.relatedProgram || ''
-            : undefined
+            : undefined,
+        stagePermissions: (
+          values.stagePermissions ||
+          callStages.map((stage) => ({ stage, assignees: [] }))
+        ).map((permission, index) => ({
+          stage: permission.stage || callStages[index],
+          assignees: permission.assignees || []
+        }))
       };
 
       const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/open-calls`;
@@ -192,11 +229,11 @@ export default function OpenCallForm({
               label='Funder'
               placeholder='Enter funder name'
             />
-            <FormSelect
+            <FormCheckboxGroup
               control={form.control}
               name='sector'
               label='Sector'
-              placeholder='Select sector'
+              description='Pick all sectors that apply'
               options={[
                 { label: 'Energy', value: 'Energy' },
                 { label: 'Agriculture', value: 'Agriculture' },
@@ -204,6 +241,7 @@ export default function OpenCallForm({
                 { label: 'Water', value: 'Water' },
                 { label: 'Health', value: 'Health' }
               ]}
+              className='md:col-span-2'
             />
             <FormSelect
               control={form.control}
@@ -318,12 +356,29 @@ export default function OpenCallForm({
               description='The team member responsible for this project'
               options={teamMembers}
             />
-            <FormInput
-              control={form.control}
-              name='thematicAlignment'
-              label='Thematic Alignment'
-              placeholder='Alignment details'
-            />
+          </div>
+
+          <Separator />
+
+          <div className='space-y-4'>
+            <h3 className='text-lg font-medium'>Stage Assignments</h3>
+            <p className='text-sm text-gray-500'>
+              Assign specific team members to be responsible for each stage of
+              the call.
+            </p>
+
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              {callStages.map((stage, index) => (
+                <FormMultiSelectAvatar
+                  key={stage}
+                  control={form.control}
+                  name={`stagePermissions.${index}.assignees`}
+                  label={`${stage} Owner(s)`}
+                  options={teamMembers}
+                  placeholder={`Start typing to assign for ${stage}...`}
+                />
+              ))}
+            </div>
           </div>
 
           <FormFileUpload
@@ -333,7 +388,17 @@ export default function OpenCallForm({
             description='Upload concept notes, drafts, etc.'
             config={{
               maxSize: 10 * 1024 * 1024, // 10MB
-              maxFiles: 5
+              maxFiles: 5,
+              acceptedTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/plain'
+              ]
             }}
           />
 

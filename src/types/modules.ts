@@ -33,7 +33,7 @@ export type OpenCall = {
   id: string;
   title: string;
   funder?: string;
-  sector?: string;
+  sector?: string | string[];
   grantType?: string;
   budget?: string;
   deadline: string;

@@ -8,7 +8,7 @@ export type ActivityType =
   | 'Status Change';
 
 export interface IActivity extends Document {
-  author: Types.ObjectId;
+  author: Types.ObjectId | string | Record<string, any>;
   type: ActivityType;
   content: string;
   sentiment: 'Positive' | 'Neutral' | 'Negative';
@@ -21,8 +21,7 @@ export interface IActivity extends Document {
 const ActivitySchema = new Schema<IActivity>(
   {
     author: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: Schema.Types.Mixed,
       required: true
     },
     type: {

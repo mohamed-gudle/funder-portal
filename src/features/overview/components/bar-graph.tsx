@@ -32,12 +32,20 @@ async function getSectorData() {
 
   const sectorCounts = allCalls.reduce(
     (acc, call) => {
-      const existing = acc.find((item) => item.sector === call.sector);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ sector: call.sector, count: 1 });
-      }
+      const sectors = Array.isArray(call.sector)
+        ? call.sector
+        : call.sector
+          ? [call.sector]
+          : ['Unspecified'];
+
+      sectors.forEach((sector) => {
+        const existing = acc.find((item) => item.sector === sector);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          acc.push({ sector, count: 1 });
+        }
+      });
       return acc;
     },
     [] as Array<{ sector: string; count: number }>

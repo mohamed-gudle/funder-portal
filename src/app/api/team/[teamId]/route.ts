@@ -3,10 +3,11 @@ import { teamMemberService } from '@/server/services/team-member.service';
 
 export async function GET(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const teamMember = await teamMemberService.findById(params.teamId);
+    const { teamId } = await params;
+    const teamMember = await teamMemberService.findById(teamId);
     if (!teamMember) {
       return NextResponse.json(
         { error: 'Team member not found' },
@@ -25,11 +26,12 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
+    const { teamId } = await params;
     const body = await request.json();
-    const teamMember = await teamMemberService.update(params.teamId, body);
+    const teamMember = await teamMemberService.update(teamId, body);
     if (!teamMember) {
       return NextResponse.json(
         { error: 'Team member not found' },
@@ -48,10 +50,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
-    const teamMember = await teamMemberService.delete(params.teamId);
+    const { teamId } = await params;
+    const teamMember = await teamMemberService.delete(teamId);
     if (!teamMember) {
       return NextResponse.json(
         { error: 'Team member not found' },

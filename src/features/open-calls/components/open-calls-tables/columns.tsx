@@ -41,9 +41,36 @@ export const columns: ColumnDef<OpenCall>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Sector' />
     ),
+    cell: ({ row }) => {
+      const sectorValue = row.getValue('sector') as string[] | string;
+      const sectors = Array.isArray(sectorValue)
+        ? sectorValue
+        : sectorValue
+          ? [sectorValue]
+          : [];
+
+      if (!sectors.length) return <span>-</span>;
+
+      return (
+        <div className='flex flex-wrap gap-1'>
+          {sectors.map((sector) => (
+            <Badge key={sector} variant='secondary'>
+              {sector}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
     enableColumnFilter: true,
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      const sectorValue = row.getValue(id) as string[] | string | undefined;
+      const sectors = Array.isArray(sectorValue)
+        ? sectorValue
+        : sectorValue
+          ? [sectorValue]
+          : [];
+
+      return value.some((filterValue: string) => sectors.includes(filterValue));
     },
     meta: {
       label: 'Sector',

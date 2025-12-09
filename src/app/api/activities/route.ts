@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const activities = await Activity.find({ parent: parentId })
-      .populate('author', 'name email image')
-      .sort({ createdAt: -1 });
+    const activities = await Activity.find({ parent: parentId }).sort({
+      createdAt: -1
+    });
 
     return NextResponse.json(activities);
   } catch (error) {
@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const authorPayload = {
+      id: session.user.id,
+      name: (session.user as any)?.name || (session.user as any)?.email || '',
+      email: (session.user as any)?.email || '',
+      image: (session.user as any)?.image || ''
+    };
+
     const newActivity = await Activity.create({
       author: session.user.id,
       type,
@@ -68,9 +75,6 @@ export async function POST(req: NextRequest) {
       parent,
       parentModel
     });
-
-    // Populate author before returning
-    await newActivity.populate('author', 'name email image');
 
     return NextResponse.json(newActivity, { status: 201 });
   } catch (error) {

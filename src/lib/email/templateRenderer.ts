@@ -20,7 +20,9 @@ export const renderTemplate = <TTemplate extends TemplateName>(
   templateName: TTemplate,
   args: TemplateArgs<TTemplate>
 ): RenderedTemplate => {
-  const template = templates[templateName];
+  const template = templates[templateName] as TemplateDefinition<
+    TemplateArgs<TTemplate>
+  >;
 
   if (!template) {
     throw new Error(`Email template "${templateName}" was not found.`);
@@ -34,10 +36,10 @@ export const renderTemplate = <TTemplate extends TemplateName>(
   };
 };
 
-const validateTemplateArgs = (
+const validateTemplateArgs = <TArgs extends Record<string, unknown>>(
   templateName: string,
-  template: TemplateDefinition<Record<string, unknown>>,
-  args: Record<string, unknown>
+  template: TemplateDefinition<TArgs>,
+  args: TArgs
 ) => {
   const missingFields = template.requiredFields.filter((field) => {
     if (!Object.prototype.hasOwnProperty.call(args, field)) {
