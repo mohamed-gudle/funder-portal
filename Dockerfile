@@ -32,6 +32,15 @@ ENV NODE_ENV=production
 ARG MONGODB_URI=mongodb://localhost:27017/funders-portal
 ENV MONGODB_URI=${MONGODB_URI}
 
+# Set default auth secrets for build (can be overridden at runtime)
+# These are only used during build to prevent errors
+ARG BETTER_AUTH_SECRET=build-time-secret-change-in-production
+ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+ARG CLERK_SECRET_KEY=
+ENV CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+
 # Build the application
 RUN pnpm build
 

@@ -7,6 +7,8 @@ const client = new MongoClient(process.env.MONGODB_URI!);
 const db = client.db();
 
 export const auth = betterAuth({
+  secret:
+    process.env.BETTER_AUTH_SECRET || 'default-secret-change-in-production',
   database: mongodbAdapter(db),
   emailAndPassword: {
     enabled: true
