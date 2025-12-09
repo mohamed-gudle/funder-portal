@@ -273,6 +273,9 @@ importers:
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.11.0
         version: 6.21.0(@typescript-eslint/parser@8.48.0(eslint@8.48.0)(typescript@5.7.2))(eslint@8.48.0)(typescript@5.7.2)
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
       googleapis:
         specifier: ^140.0.1
         version: 140.0.1

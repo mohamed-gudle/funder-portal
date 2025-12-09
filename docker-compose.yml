@@ -11,6 +11,8 @@ services:
     env_file:
       - .env
     environment:
+      # MongoDB Configuration (defaults for local dev)
+      - MONGODB_URI=${MONGODB_URI:-mongodb://admin:changeme@mongodb:27017/funders-portal?authSource=admin}
       # Next.js Configuration
       - NODE_ENV=production
       - PORT=3000
@@ -27,25 +29,25 @@ services:
     networks:
       - funders-portal-network
 
-  # MongoDB service (optional - uncomment if needed)
-  # mongodb:
-  #   image: mongo:7
-  #   container_name: funders-portal-mongodb
-  #   ports:
-  #     - "27017:27017"
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=admin
-  #     - MONGO_INITDB_ROOT_PASSWORD=changeme
-  #   volumes:
-  #     - mongodb_data:/data/db
-  #   networks:
-  #     - funders-portal-network
-  #   restart: unless-stopped
+  # MongoDB service for local development
+  mongodb:
+    image: mongo:7
+    container_name: funders-portal-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=changeme
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - funders-portal-network
+    restart: unless-stopped
 
 networks:
   funders-portal-network:
     driver: bridge
 
-# volumes:
-#   mongodb_data:
+volumes:
+  mongodb_data:
 
