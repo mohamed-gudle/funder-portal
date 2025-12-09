@@ -160,12 +160,12 @@ export default function ProfileEditForm() {
                 <label className='text-sm font-medium'>Email</label>
                 <input
                   type='email'
-                  value={user.primaryEmailAddress?.emailAddress || ''}
+                  value={session.user.email || ''}
                   disabled
                   className='bg-muted flex h-10 w-full rounded-md border px-3 py-2 text-sm'
                 />
                 <p className='text-muted-foreground text-xs'>
-                  Email cannot be changed here. Use Clerk settings to update.
+                  Email address is managed by your authentication provider.
                 </p>
               </div>
               <FormInput
