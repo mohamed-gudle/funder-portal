@@ -277,10 +277,8 @@ export const fakeOpenCalls = {
     this.records = sampleOpenCalls.map((call: any, index: number) => {
       const normalizedStatus =
         statusMap[call.status] || call.status || 'In Review';
-      const fundingType =
-        call.fundingType ||
-        (index % 2 === 0 ? 'Programmatic Funding' : 'Core Funding');
-      const priority =
+      const fundingType: OpenCall['fundingType'] = 'Core Funding';
+      const priority: OpenCall['priority'] =
         call.priority ||
         (index % 3 === 0 ? 'High' : index % 3 === 1 ? 'Medium' : 'Low');
       const callStatus: 'Open' | 'Closed' =
@@ -288,18 +286,30 @@ export const fakeOpenCalls = {
           ? 'Closed'
           : call.callStatus || 'Open';
 
+      const sectors = Array.isArray(call.sector)
+        ? call.sector.filter(Boolean)
+        : call.sector
+          ? [call.sector]
+          : [];
+
+      const relatedProgram = undefined;
+
       return {
+        ...call,
         notes: [],
         documents: [],
-        ...call,
+        sector: sectors,
         callStatus,
         priority,
         fundingType,
-        relatedProgram:
-          fundingType === 'Programmatic Funding'
-            ? call.relatedProgram || call.priorityProject || ''
-            : undefined,
-        status: normalizedStatus
+        relatedProgram,
+        status: normalizedStatus,
+        stagePermissions: (call.stagePermissions || []).filter(
+          (p: any) => p?.stage
+        ),
+        deadline: call.deadline || new Date().toISOString(),
+        internalOwner: call.internalOwner || 'Unassigned',
+        description: call.description || ''
       } as OpenCall;
     });
   },
@@ -334,7 +344,7 @@ export const fakeOpenCalls = {
       data = data.filter((item) => item.fundingType === fundingType);
     }
     if (sector) {
-      data = data.filter((item) => item.sector === sector);
+      data = data.filter((item) => (item.sector || []).includes(sector));
     }
     if (search) {
       data = matchSorter(data, search, {

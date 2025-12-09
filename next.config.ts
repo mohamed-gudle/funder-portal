@@ -13,7 +13,9 @@ const baseConfig: NextConfig = {
         protocol: 'http',
         hostname: '**'
       }
-    ]
+    ],
+    dangerouslyAllowSVG: true,
+    unoptimized: true
   },
   transpilePackages: ['geist']
 };

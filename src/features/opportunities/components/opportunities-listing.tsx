@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function OpportunitiesListingPage() {
@@ -16,6 +16,7 @@ export default function OpportunitiesListingPage() {
   const [data, setData] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleSearch = async () => {
     if (!query) return;
@@ -50,6 +51,44 @@ export default function OpportunitiesListingPage() {
       setData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveResults = async () => {
+    if (!data.length) {
+      toast.error('No results to save yet. Run a search first.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetch('/api/opportunities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          opportunities: data,
+          query,
+          maxIterations
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save opportunities');
+      }
+
+      const result = await response.json();
+      if (Array.isArray(result?.saved)) {
+        setData(result.saved);
+      }
+      const savedCount = result?.saved?.length ?? data.length;
+      toast.success(`Saved ${savedCount} opportunities to your table`);
+    } catch (error) {
+      console.error(error);
+      toast.error('Unable to save opportunities');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -101,6 +140,18 @@ export default function OpportunitiesListingPage() {
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               ) : null}
               Search
+            </Button>
+            <Button
+              variant='outline'
+              onClick={handleSaveResults}
+              disabled={saving || loading || data.length === 0}
+            >
+              {saving ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : (
+                <Save className='mr-2 h-4 w-4' />
+              )}
+              Save results
             </Button>
           </div>
         </CardContent>

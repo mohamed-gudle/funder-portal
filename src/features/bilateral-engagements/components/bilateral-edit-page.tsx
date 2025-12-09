@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
-import { BilateralDetail } from './bilateral-detail';
+import BilateralForm from './bilateral-form';
 
-type BilateralViewPageProps = {
+type BilateralEditPageProps = {
   engagementId: string;
 };
 
-export default async function BilateralViewPage({
+export default async function BilateralEditPage({
   engagementId
-}: BilateralViewPageProps) {
+}: BilateralEditPageProps) {
   const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/bilateral-engagements/${engagementId}`;
 
   let engagement = null;
@@ -26,5 +26,10 @@ export default async function BilateralViewPage({
     notFound();
   }
 
-  return <BilateralDetail data={engagement} />;
+  return (
+    <BilateralForm
+      initialData={engagement}
+      pageTitle={`Edit Engagement: ${engagement.organizationName}`}
+    />
+  );
 }

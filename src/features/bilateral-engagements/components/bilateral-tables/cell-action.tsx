@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { BilateralEngagement } from '@/types/modules';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Edit, Eye, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -67,6 +67,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem
             onClick={() =>
               router.push(`/dashboard/bilateral-engagements/${data.id}`)
+            }
+          >
+            <Eye className='mr-2 h-4 w-4' /> View
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              router.push(`/dashboard/bilateral-engagements/${data.id}/edit`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Update

@@ -115,6 +115,7 @@ export type Activity = {
 };
 
 export type Opportunity = {
+  id?: string;
   title: string;
   organization: string;
   description: string;
@@ -124,6 +125,10 @@ export type Opportunity = {
   energy_sector: string;
   eligibility: string;
   relevance_score: number;
+  query?: string;
+  maxIterations?: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type TeamMember = {
