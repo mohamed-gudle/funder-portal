@@ -15,7 +15,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
   return (
     <div className='relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
       <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
-        <div className='absolute inset-0 bg-zinc-900' />
+        <div className='absolute inset-0 bg-white' />
         <div className='relative z-20 flex items-center text-lg font-medium'>
           <Image src='/logo.svg' alt='logo' width={60} height={60} />
         </div>
