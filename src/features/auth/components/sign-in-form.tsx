@@ -57,21 +57,24 @@ export function SignInForm() {
       if (error) {
         toast.error(error.message || 'Invalid email or password');
         console.error('Sign in error:', error);
+        setIsLoading(false);
         return;
       }
 
       if (!signInData) {
         toast.error('Unable to sign in. Please try again.');
+        setIsLoading(false);
         return;
       }
 
       toast.success('Welcome back!');
-      router.replace('/dashboard/overview');
-      router.refresh();
+
+      // Use window.location instead of router.replace to ensure full page reload
+      // This ensures the session is properly picked up
+      window.location.href = '/dashboard/overview';
     } catch (error) {
       toast.error('An unexpected error occurred');
       console.error('Sign in error:', error);
-    } finally {
       setIsLoading(false);
     }
   };
