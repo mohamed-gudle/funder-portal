@@ -67,7 +67,11 @@ export function SignInForm() {
         return;
       }
 
+      console.log('Sign in successful, response:', signInData);
       toast.success('Welcome back!');
+
+      // Small delay to ensure cookie is set before redirect
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Use window.location instead of router.replace to ensure full page reload
       // This ensures the session is properly picked up
