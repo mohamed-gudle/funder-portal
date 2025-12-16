@@ -22,6 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
+import { ContactList } from './contact-list';
 
 const engagementStages = [
   'Cold Email',
@@ -274,40 +275,7 @@ export function BilateralDetail({ data }: { data: BilateralEngagement }) {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Counterparty Contacts</CardTitle>
-            </CardHeader>
-            <CardContent className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-              <DetailItem
-                icon={<User className='h-4 w-4 text-gray-500' />}
-                label='Primary Contact'
-                value={data.contactPerson || 'Not provided'}
-              />
-              <DetailItem
-                icon={<Building className='h-4 w-4 text-gray-500' />}
-                label='Role / Title'
-                value={data.contactRole || 'Not provided'}
-              />
-              <DetailItem
-                icon={<Mail className='h-4 w-4 text-gray-500' />}
-                label='Email'
-                value={
-                  data.email ? (
-                    <a
-                      href={`mailto:${data.email}`}
-                      className='text-blue-600 hover:underline'
-                    >
-                      {data.email}
-                    </a>
-                  ) : (
-                    'Not provided'
-                  )
-                }
-                className='sm:col-span-2'
-              />
-            </CardContent>
-          </Card>
+          <ContactList engagementId={data.id || (data as any)._id} />
         </TabsContent>
 
         <TabsContent value='activity'>

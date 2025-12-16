@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { authClient } from '@/lib/auth-client';
+import { authClient, useSession } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -30,6 +30,13 @@ type FormValues = z.infer<typeof formSchema>;
 export function SignInForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.replace('/dashboard/overview');
+    }
+  }, [router, session]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -42,7 +49,7 @@ export function SignInForm() {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      const { data: session, error } = await authClient.signIn.email({
+      const { data: signInData, error } = await authClient.signIn.email({
         email: data.email,
         password: data.password
       });
@@ -53,8 +60,13 @@ export function SignInForm() {
         return;
       }
 
+      if (!signInData) {
+        toast.error('Unable to sign in. Please try again.');
+        return;
+      }
+
       toast.success('Welcome back!');
-      router.push('/dashboard/overview');
+      router.replace('/dashboard/overview');
       router.refresh();
     } catch (error) {
       toast.error('An unexpected error occurred');
