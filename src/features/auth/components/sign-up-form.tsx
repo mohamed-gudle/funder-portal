@@ -20,10 +20,18 @@ import { Icons } from '@/components/icons';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+const allowedSignupDomains = ['africacen.org', 'bayesconsultants.com'];
+
 const formSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
+    email: z
+      .string()
+      .email('Invalid email address')
+      .refine((value) => {
+        const domain = value.split('@')[1]?.toLowerCase();
+        return domain ? allowedSignupDomains.includes(domain) : false;
+      }, 'Use your africacen.org or bayesconsultants.com email address'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
