@@ -62,6 +62,7 @@ interface UseDataTableProps<TData>
   scroll?: boolean;
   shallow?: boolean;
   startTransition?: React.TransitionStartFunction;
+  enableManualPagination?: boolean; // Allow toggling between manual and automatic pagination
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
@@ -77,6 +78,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     scroll = false,
     shallow = true,
     startTransition,
+    enableManualPagination = true, // Default to manual pagination for backward compatibility
     ...tableProps
   } = props;
 
@@ -109,36 +111,53 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
-  const [page, setPage] = useQueryState(
+  // Use URL state for manual pagination, React state for automatic pagination
+  const [urlPage, setUrlPage] = useQueryState(
     PAGE_KEY,
     parseAsInteger.withOptions(queryStateOptions).withDefault(1)
   );
-  const [perPage, setPerPage] = useQueryState(
+  const [urlPerPage, setUrlPerPage] = useQueryState(
     PER_PAGE_KEY,
     parseAsInteger
       .withOptions(queryStateOptions)
       .withDefault(initialState?.pagination?.pageSize ?? 10)
   );
 
+  // Local state for client-side pagination
+  const [localPaginationState, setLocalPaginationState] =
+    React.useState<PaginationState>({
+      pageIndex: initialState?.pagination?.pageIndex ?? 0,
+      pageSize: initialState?.pagination?.pageSize ?? 10
+    });
+
+  // Use URL state or local state based on enableManualPagination
   const pagination: PaginationState = React.useMemo(() => {
-    return {
-      pageIndex: page - 1, // zero-based index -> one-based index
-      pageSize: perPage
-    };
-  }, [page, perPage]);
+    if (enableManualPagination) {
+      return {
+        pageIndex: urlPage - 1, // zero-based index -> one-based index
+        pageSize: urlPerPage
+      };
+    }
+    return localPaginationState;
+  }, [enableManualPagination, urlPage, urlPerPage, localPaginationState]);
 
   const onPaginationChange = React.useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
-      if (typeof updaterOrValue === 'function') {
-        const newPagination = updaterOrValue(pagination);
-        void setPage(newPagination.pageIndex + 1);
-        void setPerPage(newPagination.pageSize);
+      const newPagination =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(pagination)
+          : updaterOrValue;
+
+      if (enableManualPagination) {
+        // Update URL state for manual pagination
+        void setUrlPage(newPagination.pageIndex + 1);
+        void setUrlPerPage(newPagination.pageSize);
       } else {
-        void setPage(updaterOrValue.pageIndex + 1);
-        void setPerPage(updaterOrValue.pageSize);
+        // Update local state for automatic pagination
+        setLocalPaginationState(newPagination);
       }
     },
-    [pagination, setPage, setPerPage]
+    [pagination, enableManualPagination, setUrlPage, setUrlPerPage]
   );
 
   const columnIds = React.useMemo(() => {
@@ -194,7 +213,12 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
   const debouncedSetFilterValues = useDebouncedCallback(
     (values: typeof filterValues) => {
-      void setPage(1);
+      // Reset to page 1 when filters change
+      if (enableManualPagination) {
+        void setUrlPage(1);
+      } else {
+        setLocalPaginationState((prev) => ({ ...prev, pageIndex: 0 }));
+      }
       void setFilterValues(values);
     },
     debounceMs
@@ -287,7 +311,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    manualPagination: true,
+    manualPagination: enableManualPagination, // Use prop value instead of hardcoded true
     manualSorting: true,
     manualFiltering: true
   });

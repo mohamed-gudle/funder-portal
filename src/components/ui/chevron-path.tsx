@@ -19,27 +19,39 @@ export function ChevronPath({
   return (
     <nav
       aria-label='Progress'
-      className={cn('w-full overflow-x-auto', className)}
+      className={cn('w-full overflow-x-auto md:overflow-visible', className)}
     >
       <ol
         role='list'
-        className='divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0'
+        className='divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:flex-wrap md:divide-y-0'
       >
         {steps.map((step, stepIdx) => {
           const isCompleted = currentIndex > stepIdx;
           const isCurrent = step === currentStep;
 
           return (
-            <li key={step} className='relative md:flex md:flex-1'>
+            <li
+              key={step}
+              className='relative min-w-0 md:flex md:min-w-[180px] md:flex-1'
+            >
               {/* Button / Container */}
               <button
                 onClick={() => onStepClick && onStepClick(step)}
                 disabled={!onStepClick}
-                className='group flex w-full items-center'
+                className='group flex w-full items-stretch text-left'
               >
-                <div className='flex w-full items-center px-6 py-4 text-sm font-medium'>
+                <div className='flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left text-sm font-medium md:px-5'>
                   {/* Icon / Status Indicator */}
-                  <span className="${isCompleted ? 'bg-primary border-primary' : ''} ${isCurrent ? 'border-primary' : ''} ${!isCompleted && !isCurrent ? 'border-gray-300' : ''} mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2">
+                  <span
+                    className={cn(
+                      'mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2',
+                      isCompleted
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : '',
+                      isCurrent ? 'border-primary' : '',
+                      !isCompleted && !isCurrent ? 'border-gray-300' : ''
+                    )}
+                  >
                     {isCompleted && (
                       <Check
                         className='h-5 w-5 text-white'
@@ -58,10 +70,10 @@ export function ChevronPath({
                   </span>
 
                   {/* Text */}
-                  <div className='flex flex-col items-start'>
+                  <div className='flex min-w-0 flex-col items-start'>
                     <span
                       className={cn(
-                        'text-sm font-medium',
+                        'text-left text-sm leading-snug font-medium',
                         isCompleted ? 'text-primary' : 'text-gray-900',
                         isCurrent ? 'text-primary' : 'text-gray-500'
                       )}

@@ -1,6 +1,11 @@
 import { config } from 'dotenv';
 import path from 'path';
 import fs from 'fs/promises';
+import {
+  readExcelFile,
+  mapOpenCallExcelToSchema,
+  mapBilateralExcelToSchema
+} from './excel-parser';
 
 // Load environment variables FIRST
 config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -24,6 +29,20 @@ async function readSeedFile(envKey: string) {
   }
 
   return data as SeedRecord[];
+}
+
+async function readExcelSeedFile(
+  filePath: string,
+  sheetName?: string
+): Promise<SeedRecord[]> {
+  try {
+    const data = readExcelFile(filePath, sheetName);
+    console.log(`ℹ️  Read ${data.length} rows from Excel file: ${filePath}`);
+    return data;
+  } catch (error) {
+    console.error(`❌ Error reading Excel file ${filePath}:`, error);
+    return [];
+  }
 }
 
 function normalizeOpenCall(record: SeedRecord) {
@@ -129,26 +148,40 @@ async function seed() {
     await connectDB();
     console.log('✅ Connected to database');
 
-    const openCallSeeds = (await readSeedFile('SEED_OPEN_CALLS_FILE')) || [];
-    const bilateralSeeds = (await readSeedFile('SEED_BILATERALS_FILE')) || [];
+    // Read Open Calls from Excel
+    const openCallsExcelPath = '20251104_Open Calls_AFCEN Fundraising (2).xlsx';
+    const openCallRawData = await readExcelSeedFile(
+      openCallsExcelPath,
+      'Sheet1'
+    );
 
-    if (!openCallSeeds.length) {
+    // Read Bilateral Engagements from Excel
+    const bilateralExcelPath =
+      '20251126_Fundraising Engagement Plan_Bilateral Funders.xlsx';
+    const bilateralRawData = await readExcelSeedFile(
+      bilateralExcelPath,
+      'Bilat Funders 2'
+    );
+
+    // Use mock data if Excel files are empty
+    if (!openCallRawData.length) {
       console.log('ℹ️  Using mock module open calls as seed data');
       fakeOpenCalls.initialize();
     }
 
-    if (!bilateralSeeds.length) {
+    if (!bilateralRawData.length) {
       console.log('ℹ️  Using mock module bilateral engagements as seed data');
       fakeBilateralEngagements.initialize();
     }
 
-    if (openCallSeeds.length || fakeOpenCalls.records.length) {
+    // Seed Open Calls
+    if (openCallRawData.length || fakeOpenCalls.records.length) {
       console.log('🗑️  Clearing existing Open Calls...');
       await OpenCall.deleteMany({});
 
-      const normalized = (
-        openCallSeeds.length ? openCallSeeds : fakeOpenCalls.records
-      ).map(normalizeOpenCall);
+      const normalized = openCallRawData.length
+        ? openCallRawData.map(mapOpenCallExcelToSchema)
+        : fakeOpenCalls.records.map(normalizeOpenCall);
 
       console.log(`📝 Seeding ${normalized.length} Open Calls...`);
       await OpenCall.insertMany(normalized);
@@ -157,15 +190,14 @@ async function seed() {
       console.log('ℹ️  No Open Call seed data provided; skipping insert.');
     }
 
-    if (bilateralSeeds.length || fakeBilateralEngagements.records.length) {
+    // Seed Bilateral Engagements
+    if (bilateralRawData.length || fakeBilateralEngagements.records.length) {
       console.log('🗑️  Clearing existing Bilateral Engagements...');
       await BilateralEngagement.deleteMany({});
 
-      const normalized = (
-        bilateralSeeds.length
-          ? bilateralSeeds
-          : fakeBilateralEngagements.records
-      ).map(normalizeBilateral);
+      const normalized = bilateralRawData.length
+        ? bilateralRawData.map(mapBilateralExcelToSchema)
+        : fakeBilateralEngagements.records.map(normalizeBilateral);
 
       console.log(`📝 Seeding ${normalized.length} Bilateral Engagements...`);
       await BilateralEngagement.insertMany(normalized);

@@ -148,13 +148,27 @@ export const columns: ColumnDef<BilateralEngagement>[] = [
     cell: ({ row }) => {
       const tags = (row.getValue('tags') as string[]) || [];
       if (!tags.length) return <span>-</span>;
+
+      const visibleTags = tags.slice(0, 2);
+      const remainingCount = tags.length - visibleTags.length;
+
       return (
         <div className='flex max-w-[200px] flex-wrap gap-1'>
-          {tags.map((tag) => (
-            <Badge key={tag} variant='outline'>
+          {visibleTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant='outline'
+              className='max-w-[120px] truncate'
+              title={tag}
+            >
               {tag}
             </Badge>
           ))}
+          {remainingCount > 0 && (
+            <Badge variant='outline' className='text-muted-foreground'>
+              +{remainingCount}
+            </Badge>
+          )}
         </div>
       );
     }

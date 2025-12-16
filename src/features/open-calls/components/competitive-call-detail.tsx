@@ -145,11 +145,11 @@ export default function CompetitiveCallDetail({
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='min-w-0 space-y-6'>
       {/* Header Section */}
-      <div className='flex flex-col gap-4 md:flex-row md:items-start md:justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight text-gray-900'>
+      <div className='flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6'>
+        <div className='min-w-0'>
+          <h1 className='text-3xl leading-tight font-bold tracking-tight break-words text-gray-900'>
             {data.title}
           </h1>
           <div className='mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500'>
@@ -202,7 +202,7 @@ export default function CompetitiveCallDetail({
       </Card>
 
       <Tabs defaultValue='overview' className='space-y-6'>
-        <TabsList className='w-full justify-start'>
+        <TabsList className='w-full flex-wrap justify-start gap-2 md:w-auto'>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
           <TabsTrigger value='activities'>Activities</TabsTrigger>
         </TabsList>
@@ -583,26 +583,78 @@ function ActivityTable({
           </div>
         </form>
 
-        <div className='overflow-hidden rounded-lg border'>
+        <div className='space-y-3'>
           {loading ? (
-            <div className='flex items-center gap-2 p-4 text-sm text-gray-600'>
+            <div className='bg-background flex items-center gap-2 rounded-lg border p-4 text-sm text-gray-600'>
               <Loader2 className='h-4 w-4 animate-spin' />
               Loading activities...
             </div>
+          ) : filteredActivities.length === 0 ? (
+            <div className='bg-background rounded-lg border py-6 text-center text-sm text-gray-500'>
+              No activity found for this call.
+            </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='w-40'>Type</TableHead>
-                  <TableHead>Summary</TableHead>
-                  <TableHead className='w-40'>Author</TableHead>
-                  <TableHead className='w-[180px]'>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className='hidden md:block'>
+                <div className='overflow-hidden rounded-lg border'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-28 text-sm md:w-32'>
+                          Type
+                        </TableHead>
+                        <TableHead className='min-w-[220px] text-sm whitespace-normal'>
+                          Summary
+                        </TableHead>
+                        <TableHead className='w-28 text-sm whitespace-normal'>
+                          Author
+                        </TableHead>
+                        <TableHead className='w-[150px] text-sm whitespace-nowrap'>
+                          Created
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredActivities.map((activity) => (
+                        <TableRow key={activity._id}>
+                          <TableCell>
+                            <Badge
+                              variant='outline'
+                              className={
+                                typeBadgeMap[activity.type] ||
+                                'border-gray-200 bg-gray-50 text-gray-700'
+                              }
+                            >
+                              {activity.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className='max-w-[360px] align-top break-words whitespace-normal'>
+                            <p className='line-clamp-2 text-sm leading-snug text-gray-800'>
+                              {activity.content}
+                            </p>
+                          </TableCell>
+                          <TableCell className='text-sm break-words whitespace-normal text-gray-600'>
+                            {activity.author?.name || 'Unknown'}
+                          </TableCell>
+                          <TableCell className='text-sm whitespace-nowrap text-gray-600'>
+                            {activity.createdAt
+                              ? format(new Date(activity.createdAt), 'PP p')
+                              : ''}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              <div className='space-y-3 md:hidden'>
                 {filteredActivities.map((activity) => (
-                  <TableRow key={activity._id}>
-                    <TableCell>
+                  <div
+                    key={activity._id}
+                    className='bg-background rounded-lg border p-3 shadow-sm'
+                  >
+                    <div className='flex items-center justify-between gap-2'>
                       <Badge
                         variant='outline'
                         className={
@@ -612,34 +664,22 @@ function ActivityTable({
                       >
                         {activity.type}
                       </Badge>
-                    </TableCell>
-                    <TableCell className='max-w-xl'>
-                      <p className='line-clamp-2 text-sm text-gray-800'>
-                        {activity.content}
-                      </p>
-                    </TableCell>
-                    <TableCell className='text-sm text-gray-600'>
+                      <span className='text-xs text-gray-500'>
+                        {activity.createdAt
+                          ? format(new Date(activity.createdAt), 'PP p')
+                          : ''}
+                      </span>
+                    </div>
+                    <p className='mt-2 text-sm leading-snug break-words text-gray-800'>
+                      {activity.content}
+                    </p>
+                    <p className='mt-2 text-xs break-words text-gray-500'>
                       {activity.author?.name || 'Unknown'}
-                    </TableCell>
-                    <TableCell className='text-sm text-gray-600'>
-                      {activity.createdAt
-                        ? format(new Date(activity.createdAt), 'PP p')
-                        : ''}
-                    </TableCell>
-                  </TableRow>
+                    </p>
+                  </div>
                 ))}
-                {filteredActivities.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className='py-6 text-center text-sm text-gray-500'
-                    >
-                      No activity found for this call.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </div>
       </CardContent>

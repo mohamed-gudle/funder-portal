@@ -19,10 +19,12 @@ export default function OpenCallTable({
   // Use useMemo to ensure data doesn't cause unnecessary re-renders
   const memoizedData = useMemo(() => data, [data]);
 
+  // Use automatic client-side pagination since we fetch all data
   const { table } = useDataTable({
     data: memoizedData,
     columns,
-    pageCount: Math.ceil(totalItems / 10),
+    pageCount: -1, // Not used when enableManualPagination is false
+    enableManualPagination: false, // Use automatic client-side pagination
     shallow: false,
     debounceMs: 500,
     initialState: {
