@@ -14,6 +14,16 @@ export const auth = betterAuth({
   trustedOrigins: process.env.NEXT_PUBLIC_APP_URL
     ? [process.env.NEXT_PUBLIC_APP_URL]
     : undefined,
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === 'production',
+    cookiePrefix: 'better-auth'
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5 // 5 minutes
+    }
+  },
   emailAndPassword: {
     enabled: true
   },
