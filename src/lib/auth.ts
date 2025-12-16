@@ -10,13 +10,22 @@ const allowedSignupDomains = ['africacen.org', 'bayesconsultants.com'];
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
+  secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
   trustedOrigins: process.env.NEXT_PUBLIC_APP_URL
-    ? [process.env.NEXT_PUBLIC_APP_URL]
+    ? [process.env.NEXT_PUBLIC_APP_URL, 'https://funders.africacen.org']
     : undefined,
   advanced: {
     useSecureCookies: process.env.NODE_ENV === 'production',
-    cookiePrefix: 'better-auth'
+    crossSubDomainCookies: {
+      enabled: false
+    },
+    defaultCookieAttributes: {
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      path: '/'
+    }
   },
   session: {
     cookieCache: {
