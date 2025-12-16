@@ -46,7 +46,7 @@ async function verify() {
       console.log(`   Contact: ${engagement.contactPerson}`);
       console.log(`   Status: ${engagement.status}`);
       console.log(`   Likelihood to Fund: ${engagement.likelihoodToFund}%`);
-      console.log(`   Tags: ${engagement.tags.join(', ')}`);
+      console.log(`   Tags: ${engagement?.tags?.join(', ')}`);
     });
 
     console.log('\n\n✨ Verification completed successfully!');
