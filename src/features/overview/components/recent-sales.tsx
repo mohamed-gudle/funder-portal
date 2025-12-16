@@ -1,3 +1,5 @@
+'use client';
+
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -6,11 +8,19 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
-import { fakeOpenCalls } from '@/constants/mock-modules';
 
-async function getRecentCalls() {
-  const allCalls = await fakeOpenCalls.getAll({});
-  return allCalls.slice(0, 5);
+interface OpenCall {
+  id: string;
+  title: string;
+  funder?: string;
+  sector?: string | string[];
+  status: string;
+  budget: string;
+  internalOwner: string;
+}
+
+interface RecentSalesProps {
+  recentCalls: OpenCall[];
 }
 
 const statusColors: Record<
@@ -27,9 +37,7 @@ const statusColors: Record<
   Rejected: 'destructive'
 };
 
-export async function RecentSales() {
-  const recentCalls = await getRecentCalls();
-
+export function RecentSales({ recentCalls }: RecentSalesProps) {
   return (
     <Card className='h-full'>
       <CardHeader>

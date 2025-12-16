@@ -18,7 +18,6 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 import React from 'react';
-import { fakeOpenCalls } from '@/constants/mock-modules';
 
 const chartConfig = {
   count: {
@@ -27,42 +26,19 @@ const chartConfig = {
   }
 } satisfies ChartConfig;
 
-async function getApplicationStatusData() {
-  const allCalls = await fakeOpenCalls.getAll({});
+type StatusData = Array<{ status: string; count: number }>;
 
-  const statusCounts = allCalls.reduce(
-    (acc, call) => {
-      const existing = acc.find((item) => item.status === call.status);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({ status: call.status, count: 1 });
-      }
-      return acc;
-    },
-    [] as Array<{ status: string; count: number }>
-  );
-
-  return statusCounts.sort((a, b) => b.count - a.count);
+interface AreaGraphProps {
+  data: StatusData;
 }
 
-export function AreaGraph() {
-  const [chartData, setChartData] = React.useState<
-    Array<{ status: string; count: number }>
-  >([]);
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-    getApplicationStatusData().then(setChartData);
-  }, []);
-
-  if (!isClient || chartData.length === 0) {
+export function AreaGraph({ data }: AreaGraphProps) {
+  if (!data || data.length === 0) {
     return null;
   }
 
-  const totalCalls = chartData.reduce((sum, item) => sum + item.count, 0);
-  const topStatus = chartData[0];
+  const totalCalls = data.reduce((sum, item) => sum + item.count, 0);
+  const topStatus = data[0];
 
   return (
     <Card className='@container/card'>
@@ -78,7 +54,7 @@ export function AreaGraph() {
           className='aspect-auto h-[250px] w-full'
         >
           <BarChart
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12

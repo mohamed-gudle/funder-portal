@@ -16,7 +16,6 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { fakeOpenCalls } from '@/constants/mock-modules';
 
 export const description = 'Open calls by sector';
 
@@ -27,49 +26,18 @@ const chartConfig = {
   }
 } satisfies ChartConfig;
 
-async function getSectorData() {
-  const allCalls = await fakeOpenCalls.getAll({});
+type SectorData = Array<{ sector: string; count: number }>;
 
-  const sectorCounts = allCalls.reduce(
-    (acc, call) => {
-      const sectors = Array.isArray(call.sector)
-        ? call.sector
-        : call.sector
-          ? [call.sector]
-          : ['Unspecified'];
-
-      sectors.forEach((sector) => {
-        const existing = acc.find((item) => item.sector === sector);
-        if (existing) {
-          existing.count += 1;
-        } else {
-          acc.push({ sector, count: 1 });
-        }
-      });
-      return acc;
-    },
-    [] as Array<{ sector: string; count: number }>
-  );
-
-  return sectorCounts.sort((a, b) => b.count - a.count);
+interface BarGraphProps {
+  data: SectorData;
 }
 
-export function BarGraph() {
-  const [chartData, setChartData] = React.useState<
-    Array<{ sector: string; count: number }>
-  >([]);
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-    getSectorData().then(setChartData);
-  }, []);
-
-  if (!isClient || chartData.length === 0) {
+export function BarGraph({ data }: BarGraphProps) {
+  if (!data || data.length === 0) {
     return null;
   }
 
-  const total = chartData.reduce((acc, curr) => acc + curr.count, 0);
+  const total = data.reduce((acc, curr) => acc + curr.count, 0);
 
   return (
     <Card className='@container/card pt-3!'>
@@ -98,7 +66,7 @@ export function BarGraph() {
           className='aspect-auto h-[250px] w-full'
         >
           <BarChart
-            data={chartData}
+            data={data}
             margin={{
               left: 12,
               right: 12

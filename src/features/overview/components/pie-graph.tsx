@@ -18,7 +18,6 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { fakeBilateralEngagements } from '@/constants/mock-modules';
 
 const chartConfig = {
   count: {
@@ -34,56 +33,22 @@ const colorPalette = [
   'var(--primary)'
 ];
 
-async function getFunderData() {
-  const allEngagements = await fakeBilateralEngagements.getAll({});
+type FunderData = Array<{ funder: string; count: number; fill: string }>;
 
-  const funderCounts = allEngagements.reduce(
-    (acc, engagement) => {
-      const label =
-        engagement.organizationName?.split(' ').slice(0, 3).join(' ') || '';
-      const existing = acc.find((item) => item.funder === label);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        acc.push({
-          funder: label,
-          count: 1
-        });
-      }
-      return acc;
-    },
-    [] as Array<{ funder: string; count: number }>
-  );
-
-  return funderCounts
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
-    .map((item, index) => ({
-      ...item,
-      fill: colorPalette[index % colorPalette.length]
-    }));
+interface PieGraphProps {
+  data: FunderData;
 }
 
-export function PieGraph() {
-  const [chartData, setChartData] = React.useState<
-    Array<{ funder: string; count: number; fill: string }>
-  >([]);
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-    getFunderData().then(setChartData);
-  }, []);
-
+export function PieGraph({ data }: PieGraphProps) {
   const totalEngagements = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.count, 0);
-  }, [chartData]);
+    return data.reduce((acc, curr) => acc + curr.count, 0);
+  }, [data]);
 
-  if (!isClient || chartData.length === 0) {
+  if (!data || data.length === 0) {
     return null;
   }
 
-  const topFunder = chartData[0];
+  const topFunder = data[0];
 
   return (
     <Card className='@container/card'>
@@ -107,7 +72,7 @@ export function PieGraph() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData}
+              data={data}
               dataKey='count'
               nameKey='funder'
               innerRadius={60}

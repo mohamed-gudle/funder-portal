@@ -10,14 +10,12 @@ import {
 } from '@/components/ui/card';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
-import {
-  fakeOpenCalls,
-  fakeBilateralEngagements
-} from '@/constants/mock-modules';
+import { openCallService } from '@/server/services/open-call.service';
+import { bilateralEngagementService } from '@/server/services/bilateral-engagement.service';
 
 async function getDashboardStats() {
-  const openCalls = await fakeOpenCalls.getAll({});
-  const bilateralEngagements = await fakeBilateralEngagements.getAll({});
+  const openCalls = await openCallService.findAll();
+  const bilateralEngagements = await bilateralEngagementService.findAll();
 
   // Calculate stats for open calls
   const totalBudget = openCalls.reduce((sum, call) => {
