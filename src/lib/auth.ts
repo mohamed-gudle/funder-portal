@@ -10,6 +10,10 @@ const allowedSignupDomains = ['africacen.org', 'bayesconsultants.com'];
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL,
+  trustedOrigins: process.env.NEXT_PUBLIC_APP_URL
+    ? [process.env.NEXT_PUBLIC_APP_URL]
+    : undefined,
   emailAndPassword: {
     enabled: true
   },
