@@ -18,6 +18,7 @@ const formSchema = z.object({
   phoneNumber: z.string().min(1, { message: 'Phone number is required.' }),
   speciality: z.string().min(1, { message: 'Speciality is required.' }),
   position: z.string().min(1, { message: 'Position is required.' }),
+  role: z.enum(['admin', 'member']),
   profilePhoto: z
     .string()
     .url({ message: 'Invalid URL.' })
@@ -42,6 +43,7 @@ export default function TeamMemberForm({
       phoneNumber: initialData?.phoneNumber || '',
       speciality: initialData?.speciality || '',
       position: initialData?.position || '',
+      role: initialData?.role || 'member',
       profilePhoto: initialData?.profilePhoto || ''
     }
   });
@@ -153,6 +155,17 @@ export default function TeamMemberForm({
                 { label: 'Health', value: 'Health' },
                 { label: 'Education', value: 'Education' },
                 { label: 'Climate Change', value: 'Climate Change' }
+              ]}
+            />
+            <FormSelect
+              control={form.control}
+              name='role'
+              label='Role'
+              placeholder='Select role'
+              required
+              options={[
+                { label: 'Admin', value: 'admin' },
+                { label: 'Member', value: 'member' }
               ]}
             />
           </div>

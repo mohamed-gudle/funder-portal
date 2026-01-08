@@ -66,11 +66,16 @@ export function SignUpForm() {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      await authClient.signUp.email({
+      const { data: signUpData, error } = await authClient.signUp.email({
         email: data.email,
         password: data.password,
         name: data.name
       });
+
+      if (error) {
+        toast.error(error.message || 'Failed to create account');
+        return;
+      }
 
       toast.success('Account created successfully!');
       router.push('/dashboard');

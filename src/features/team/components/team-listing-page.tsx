@@ -4,6 +4,8 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { teamMemberService } from '@/server/services/team-member.service';
 import { cn } from '@/lib/utils';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import TeamTable from './team-table';
@@ -22,6 +24,12 @@ export default async function TeamListingPage({ searchParams }: ParamsProps) {
   const data = JSON.parse(JSON.stringify(rawData)); // Serialize for client component
   const totalItems = data.length;
 
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  const isAdmin = session?.user?.role === 'admin';
+
   return (
     <PageContainer>
       <div className='w-full max-w-full min-w-0'>
@@ -30,12 +38,14 @@ export default async function TeamListingPage({ searchParams }: ParamsProps) {
             title={`Team Members (${totalItems})`}
             description='Manage your team members and their roles.'
           />
-          <Link
-            href={'/dashboard/team/new'}
-            className={cn(buttonVariants({ variant: 'default' }))}
-          >
-            <Plus className='mr-2 h-4 w-4' /> Add New
-          </Link>
+          {isAdmin && (
+            <Link
+              href={'/dashboard/team/new'}
+              className={cn(buttonVariants({ variant: 'default' }))}
+            >
+              <Plus className='mr-2 h-4 w-4' /> Add New
+            </Link>
+          )}
         </div>
         <Separator />
         <TeamTable data={data} totalItems={totalItems} />

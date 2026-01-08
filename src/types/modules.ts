@@ -138,6 +138,7 @@ export type TeamMember = {
   phoneNumber: string;
   speciality: string;
   position: string;
+  role: 'admin' | 'member'; // Added for RBAC
   profilePhoto?: string; // Added by API from Clerk
   createdAt: string;
   updatedAt: string;

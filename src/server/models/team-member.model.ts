@@ -6,6 +6,7 @@ export interface ITeamMember extends Document {
   phoneNumber: string;
   speciality: string;
   position: string;
+  role: 'admin' | 'member';
   invitationToken?: string;
   invitationSentAt?: Date;
   createdAt: Date;
@@ -19,6 +20,12 @@ const TeamMemberSchema: Schema = new Schema(
     phoneNumber: { type: String, required: true },
     speciality: { type: String, required: true },
     position: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ['admin', 'member'],
+      default: 'member',
+      required: true
+    },
     invitationToken: { type: String },
     invitationSentAt: { type: Date }
   },

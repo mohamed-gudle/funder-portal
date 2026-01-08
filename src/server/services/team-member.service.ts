@@ -1,4 +1,5 @@
 import connectDB from '@/lib/db';
+import mongoose from 'mongoose';
 import TeamMember, { ITeamMember } from '../models/team-member.model';
 import { emailClient } from '@/lib/email/emailClient';
 import * as teamInvitationEmail from '@/lib/email/templates/teamInvitationEmail';
@@ -85,7 +86,24 @@ export class TeamMemberService {
 
   async update(id: string, data: Partial<ITeamMember>) {
     await connectDB();
-    return TeamMember.findByIdAndUpdate(id, data, { new: true });
+    const updatedMember = await TeamMember.findByIdAndUpdate(id, data, {
+      new: true
+    });
+
+    // If role is updated, sync to User collection
+    if (data.role && updatedMember) {
+      const db = mongoose.connection.db;
+      if (db) {
+        await db
+          .collection('user')
+          .updateOne(
+            { email: updatedMember.email },
+            { $set: { role: data.role } }
+          );
+      }
+    }
+
+    return updatedMember;
   }
 
   async delete(id: string) {

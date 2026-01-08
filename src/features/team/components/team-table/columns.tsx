@@ -81,6 +81,15 @@ export const columns: ColumnDef<TeamMember>[] = [
     )
   },
   {
+    accessorKey: 'role',
+    header: 'Role',
+    cell: ({ row }) => (
+      <div className='max-w-[100px] capitalize' title={row.getValue('role')}>
+        {row.getValue('role')}
+      </div>
+    )
+  },
+  {
     accessorKey: 'speciality',
     header: 'Speciality',
     cell: ({ row }) => (

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { teamMemberService } from '@/server/services/team-member.service';
+import { auth } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
@@ -27,6 +28,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await auth.api.getSession({
+      headers: request.headers
+    });
+
+    if (session?.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const body = await request.json();
     const teamMember = await teamMemberService.create(body);
     return NextResponse.json(teamMember, { status: 201 });
