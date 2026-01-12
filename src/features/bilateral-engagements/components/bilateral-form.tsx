@@ -14,17 +14,12 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import { ChevronPath } from '@/components/ui/chevron-path';
+import {
+  BilateralStageFlow,
+  bilateralStagesWithFlow
+} from '@/components/ui/bilateral-stage-flow';
 
-const engagementStages = [
-  'Cold Email',
-  'First Engagement',
-  'Proposal Stage',
-  'Contracting',
-  'Partner',
-  'Funder',
-  'No Relationship'
-] as const;
+const engagementStages = bilateralStagesWithFlow;
 
 const formSchema = z.object({
   organizationName: z
@@ -165,8 +160,7 @@ export default function BilateralForm({
             </CardTitle>
           </div>
 
-          <ChevronPath
-            steps={[...engagementStages]}
+          <BilateralStageFlow
             currentStep={currentStatus}
             onStepClick={(step) =>
               form.setValue('status', step as any, { shouldDirty: true })

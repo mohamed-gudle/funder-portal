@@ -1,6 +1,6 @@
 'use client';
 
-import { IconX, IconUpload } from '@tabler/icons-react';
+import { IconX, IconUpload, IconFile } from '@tabler/icons-react';
 import Image from 'next/image';
 import * as React from 'react';
 import Dropzone, {
@@ -183,6 +183,26 @@ export function FileUploader(props: FileUploaderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Create previews for files passed via value prop that don't have previews
+  React.useEffect(() => {
+    if (files) {
+      const filesWithoutPreview = files.filter(
+        (file) => file instanceof File && !('preview' in file)
+      );
+      if (filesWithoutPreview.length > 0) {
+        const updatedFiles = files.map((file) => {
+          if (file instanceof File && !('preview' in file)) {
+            return Object.assign(file, {
+              preview: URL.createObjectURL(file)
+            });
+          }
+          return file;
+        });
+        setFiles(updatedFiles);
+      }
+    }
+  }, [files, setFiles]);
+
   const isDisabled = disabled || (files?.length ?? 0) >= maxFiles;
 
   return (
@@ -270,10 +290,12 @@ interface FileCardProps {
 }
 
 function FileCard({ file, progress, onRemove }: FileCardProps) {
+  const isImage = file.type?.startsWith('image/');
+
   return (
     <div className='relative flex items-center space-x-4'>
       <div className='flex flex-1 space-x-4'>
-        {isFileWithPreview(file) ? (
+        {isFileWithPreview(file) && isImage ? (
           <Image
             src={file.preview}
             alt={file.name}
@@ -282,7 +304,11 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
             loading='lazy'
             className='aspect-square shrink-0 rounded-md object-cover'
           />
-        ) : null}
+        ) : (
+          <div className='bg-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-md'>
+            <IconFile className='text-muted-foreground h-6 w-6' />
+          </div>
+        )}
         <div className='flex w-full flex-col gap-2'>
           <div className='space-y-px'>
             <p className='text-foreground/80 line-clamp-1 text-sm font-medium'>

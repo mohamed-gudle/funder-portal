@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Mail,
@@ -9,7 +9,10 @@ import {
   FileText,
   Activity as ActivityIcon,
   Send,
-  Loader2
+  Loader2,
+  Paperclip,
+  X,
+  Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +25,14 @@ import {
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+
+interface ActivityDocument {
+  id: string;
+  name: string;
+  url: string;
+  uploadedAt: string;
+}
 
 interface Activity {
   _id: string;
@@ -37,6 +48,7 @@ interface Activity {
     name: string;
     image?: string;
   };
+  documents?: ActivityDocument[];
   createdAt: string;
 }
 
@@ -60,6 +72,8 @@ export function ActivityFeed({ parentId, parentModel }: ActivityFeedProps) {
   const [newActivityContent, setNewActivityContent] = useState('');
   const [newActivityType, setNewActivityType] =
     useState<string>('Internal Comment');
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchActivities = async () => {
     try {
@@ -79,12 +93,54 @@ export function ActivityFeed({ parentId, parentModel }: ActivityFeedProps) {
     fetchActivities();
   }, [parentId]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setAttachedFiles((prev) => [...prev, ...Array.from(files)]);
+    }
+    // Reset input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newActivityContent.trim()) return;
 
     setSubmitting(true);
     try {
+      // Upload files first if any
+      const processedDocuments: ActivityDocument[] = [];
+      if (attachedFiles.length > 0) {
+        for (const file of attachedFiles) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('folder', 'activities');
+
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error(`Failed to upload file: ${file.name}`);
+          }
+
+          const uploadData = await uploadRes.json();
+          processedDocuments.push({
+            id: uploadData.key,
+            name: uploadData.name,
+            url: uploadData.url,
+            uploadedAt: new Date().toISOString()
+          });
+        }
+      }
+
       const res = await fetch('/api/activities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,16 +148,20 @@ export function ActivityFeed({ parentId, parentModel }: ActivityFeedProps) {
           type: newActivityType,
           content: newActivityContent,
           parent: parentId,
-          parentModel
+          parentModel,
+          documents: processedDocuments
         })
       });
 
       if (res.ok) {
         setNewActivityContent('');
+        setAttachedFiles([]);
         fetchActivities(); // Refresh feed
+        toast.success('Activity posted successfully');
       }
     } catch (err) {
       console.error('Failed to post activity', err);
+      toast.error('Failed to post activity');
     } finally {
       setSubmitting(false);
     }
@@ -137,7 +197,49 @@ export function ActivityFeed({ parentId, parentModel }: ActivityFeedProps) {
             onChange={(e) => setNewActivityContent(e.target.value)}
             className='min-h-[100px]'
           />
-          <div className='flex justify-end'>
+
+          {/* Attached Files Preview */}
+          {attachedFiles.length > 0 && (
+            <div className='flex flex-wrap gap-2'>
+              {attachedFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className='bg-muted flex items-center gap-2 rounded-md px-3 py-1.5 text-sm'
+                >
+                  <FileText className='h-4 w-4' />
+                  <span className='max-w-[150px] truncate'>{file.name}</span>
+                  <button
+                    type='button'
+                    onClick={() => removeFile(index)}
+                    className='text-muted-foreground hover:text-foreground'
+                  >
+                    <X className='h-4 w-4' />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className='flex items-center justify-between'>
+            <div>
+              <input
+                ref={fileInputRef}
+                type='file'
+                multiple
+                onChange={handleFileSelect}
+                className='hidden'
+                accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg'
+              />
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Paperclip className='mr-2 h-4 w-4' />
+                Attach Files
+              </Button>
+            </div>
             <Button type='submit' disabled={submitting} size='sm'>
               {submitting ? (
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -192,6 +294,26 @@ export function ActivityFeed({ parentId, parentModel }: ActivityFeedProps) {
                 <p className='mt-1 text-sm leading-6 text-gray-700'>
                   {activity.content}
                 </p>
+
+                {/* Document Attachments */}
+                {activity.documents && activity.documents.length > 0 && (
+                  <div className='mt-3 flex flex-wrap gap-2'>
+                    {activity.documents.map((doc) => (
+                      <a
+                        key={doc.id}
+                        href={doc.url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='bg-muted hover:bg-muted/80 flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors'
+                      >
+                        <Download className='h-4 w-4' />
+                        <span className='max-w-[150px] truncate'>
+                          {doc.name}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );

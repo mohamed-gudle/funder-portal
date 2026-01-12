@@ -2,7 +2,10 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronPath } from '@/components/ui/chevron-path';
+import {
+  BilateralStageFlow,
+  bilateralStagesWithFlow
+} from '@/components/ui/bilateral-stage-flow';
 import { ActivityFeed } from '@/components/activity-feed/activity-feed';
 import { BilateralEngagement } from '@/types/modules';
 import { useRouter } from 'next/navigation';
@@ -24,15 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { ContactList } from './contact-list';
 
-const engagementStages = [
-  'Cold Email',
-  'First Engagement',
-  'Proposal Stage',
-  'Contracting',
-  'Partner',
-  'Funder',
-  'No Relationship'
-] as const;
+const engagementStages = bilateralStagesWithFlow;
 
 export function BilateralDetail({ data }: { data: BilateralEngagement }) {
   const router = useRouter();
@@ -84,11 +79,7 @@ export function BilateralDetail({ data }: { data: BilateralEngagement }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChevronPath
-            steps={[...engagementStages]}
-            currentStep={data.status}
-            className='pb-2'
-          />
+          <BilateralStageFlow currentStep={data.status} className='pb-2' />
         </CardContent>
       </Card>
 

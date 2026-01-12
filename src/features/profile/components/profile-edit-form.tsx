@@ -13,6 +13,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import {
+  useUserProfile,
+  useCreateTeamMember,
+  useUpdateTeamMember
+} from '@/hooks/use-api';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name is required.' }),
@@ -24,8 +29,11 @@ const formSchema = z.object({
 export default function ProfileEditForm() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [teamMember, setTeamMember] = useState<any>(null);
+
+  const { data: profileData, isLoading: profileLoading } = useUserProfile();
+  const createTeamMember = useCreateTeamMember();
+  const updateTeamMember = useUpdateTeamMember();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,80 +46,41 @@ export default function ProfileEditForm() {
   });
 
   useEffect(() => {
-    if (!isPending && session?.user) {
-      // Fetch team member data by email
-      const fetchTeamMember = async () => {
-        try {
-          const res = await fetch(
-            `/api/team/by-email?email=${encodeURIComponent(session.user.email || '')}`
-          );
-          if (res.ok) {
-            const data = await res.json();
-            setTeamMember(data);
-            form.reset({
-              name: data.name || session.user.name || '',
-              phoneNumber: data.phoneNumber || '',
-              speciality: data.speciality || '',
-              position: data.position || ''
-            });
-          } else {
-            // No team member data, use session data
-            form.reset({
-              name: session.user.name || '',
-              phoneNumber: '',
-              speciality: '',
-              position: ''
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching team member:', error);
-          form.reset({
-            name: session.user.name || '',
-            phoneNumber: '',
-            speciality: '',
-            position: ''
-          });
-        }
-      };
-
-      fetchTeamMember();
+    if (!isPending && session?.user && profileData) {
+      setTeamMember(profileData.teamMemberId ? profileData : null);
+      form.reset({
+        name: profileData.name || '',
+        phoneNumber: profileData.phoneNumber || '',
+        speciality: profileData.speciality || '',
+        position: profileData.position || ''
+      });
     }
-  }, [isPending, session, form]);
+  }, [isPending, session, profileData, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!session?.user) return;
 
     try {
-      setLoading(true);
-
       // Update or create team member
-      if (teamMember) {
-        const res = await fetch(`/api/team/${teamMember.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      if (teamMember && teamMember.teamMemberId) {
+        await updateTeamMember.mutateAsync({
+          id: teamMember.teamMemberId,
+          data: {
             name: values.name,
             phoneNumber: values.phoneNumber,
             speciality: values.speciality,
             position: values.position
-          })
+          }
         });
-        if (!res.ok) throw new Error('Failed to update');
       } else {
-        // Create new team member record
-        const res = await fetch('/api/team', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: values.name,
-            email: session.user.email,
-            phoneNumber: values.phoneNumber || '',
-            speciality: values.speciality || 'General',
-            position: values.position || 'Team Member',
-            profilePhoto: session.user.image || ''
-          })
+        await createTeamMember.mutateAsync({
+          name: values.name,
+          email: session.user.email,
+          phoneNumber: values.phoneNumber || '',
+          speciality: values.speciality || 'General',
+          position: values.position || 'Team Member',
+          profilePhoto: session.user.image || ''
         });
-        if (!res.ok) throw new Error('Failed to create');
       }
 
       toast.success('Profile updated successfully');
@@ -119,12 +88,10 @@ export default function ProfileEditForm() {
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
-    } finally {
-      setLoading(false);
     }
   }
 
-  if (isPending || !session?.user) {
+  if (isPending || profileLoading || !session?.user) {
     return <div>Loading...</div>;
   }
 
@@ -219,8 +186,15 @@ export default function ProfileEditForm() {
               />
             </div>
 
-            <Button type='submit' disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+            <Button
+              type='submit'
+              disabled={
+                createTeamMember.isPending || updateTeamMember.isPending
+              }
+            >
+              {createTeamMember.isPending || updateTeamMember.isPending
+                ? 'Saving...'
+                : 'Save Changes'}
             </Button>
           </Form>
         </CardContent>

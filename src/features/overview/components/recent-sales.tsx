@@ -8,6 +8,7 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
+import Link from 'next/link';
 
 interface OpenCall {
   id: string;
@@ -47,9 +48,13 @@ export function RecentSales({ recentCalls }: RecentSalesProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='space-y-6'>
+        <div className='space-y-4'>
           {recentCalls.map((call) => (
-            <div key={call.id} className='flex flex-col gap-2'>
+            <Link
+              href={`/dashboard/open-calls/${call.id}`}
+              key={call.id}
+              className='hover:bg-muted/50 -mx-2 flex flex-col gap-2 rounded-md p-2 transition-colors'
+            >
               <div className='flex items-start justify-between gap-2'>
                 <div className='flex-1 space-y-1'>
                   <p className='line-clamp-1 text-sm leading-none font-medium'>
@@ -81,7 +86,7 @@ export function RecentSales({ recentCalls }: RecentSalesProps) {
                   {call.internalOwner}
                 </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </CardContent>

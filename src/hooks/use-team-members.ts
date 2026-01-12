@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 export interface TeamMemberOption {
   label: string;
@@ -10,40 +10,22 @@ export interface TeamMemberOption {
   email: string;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function useTeamMembers() {
-  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { data, error, isLoading } = useSWR('/api/team', fetcher);
 
-  useEffect(() => {
-    async function fetchTeamMembers() {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/team');
-        if (!res.ok) throw new Error('Failed to fetch team members');
-        const data = await res.json();
+  const teamMembers: TeamMemberOption[] = data
+    ? data.map((member: any) => ({
+        label: member.name,
+        value: member.name,
+        image: member.profilePhoto || '',
+        initials: getInitials(member.name),
+        email: member.email
+      }))
+    : [];
 
-        const options: TeamMemberOption[] = data.map((member: any) => ({
-          label: member.name,
-          value: member.name,
-          image: member.profilePhoto || '',
-          initials: getInitials(member.name),
-          email: member.email
-        }));
-
-        setTeamMembers(options);
-      } catch (err) {
-        setError(err as Error);
-        console.error('Error fetching team members:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTeamMembers();
-  }, []);
-
-  return { teamMembers, loading, error };
+  return { teamMembers, loading: isLoading, error };
 }
 
 function getInitials(name: string): string {

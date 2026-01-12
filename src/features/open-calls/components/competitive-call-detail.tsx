@@ -23,7 +23,7 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ChevronPath } from '@/components/ui/chevron-path';
+import { StageFlow, callStagesWithFlow } from '@/components/ui/stage-flow';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -57,16 +57,7 @@ import {
 } from '@/components/ui/table';
 
 // Re-using the stages constant if exported, otherwise redefining matches the model
-const callStages = [
-  'In Review',
-  'Go/No-Go',
-  'Proposal Writing',
-  'Internal Review',
-  'Submission Stage',
-  'Submitted',
-  'Accepted',
-  'Rejected'
-] as const;
+const callStages = callStagesWithFlow;
 
 type ActivityRecord = {
   _id: string;
@@ -192,8 +183,7 @@ export default function CompetitiveCallDetail({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChevronPath
-            steps={[...callStages]}
+          <StageFlow
             currentStep={currentStatus}
             onStepClick={onStepClick}
             className='pb-2'

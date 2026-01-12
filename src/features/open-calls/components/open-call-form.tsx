@@ -30,7 +30,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import { ChevronPath } from '@/components/ui/chevron-path';
+import { StageFlow, callStagesWithFlow } from '@/components/ui/stage-flow';
 import { FormMultiSelectAvatar } from '@/components/forms/form-multi-select-avatar';
 import { Separator } from '@/components/ui/separator';
 import { FormCheckboxGroup } from '@/components/forms/form-checkbox-group';
@@ -38,16 +38,7 @@ import { ProgramDialog } from '@/features/programs/components/program-dialog';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 
-const callStages = [
-  'In Review',
-  'Go/No-Go',
-  'Proposal Writing',
-  'Internal Review',
-  'Submission Stage',
-  'Submitted',
-  'Accepted',
-  'Rejected'
-] as const;
+const callStages = callStagesWithFlow;
 
 const formSchema = z
   .object({
@@ -149,8 +140,41 @@ export default function OpenCallForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const { documents, ...rest } = values;
+
+      const processedDocuments = [];
+      if (documents && documents.length > 0) {
+        toast.message('Uploading files...');
+        for (const doc of documents) {
+          if (doc instanceof File) {
+            const formData = new FormData();
+            formData.append('file', doc);
+            formData.append('folder', 'open-calls');
+
+            const uploadRes = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (!uploadRes.ok) {
+              throw new Error(`Failed to upload file: ${doc.name}`);
+            }
+
+            const uploadData = await uploadRes.json();
+            processedDocuments.push({
+              id: uploadData.key,
+              name: uploadData.name,
+              url: uploadData.url,
+              uploadedAt: new Date()
+            });
+          } else {
+            processedDocuments.push(doc);
+          }
+        }
+      }
+
       const data = {
         ...rest,
+        documents: processedDocuments,
         sector: values.sector || [],
         // Ensure grantType etc are strings even if not required by schema but by DB
         grantType: values.grantType || '',
@@ -223,8 +247,7 @@ export default function OpenCallForm({
 
       <div className='-mx-6 px-6 md:mx-0 md:px-0'>
         <div className='px-6 pb-6'>
-          <ChevronPath
-            steps={[...callStages]}
+          <StageFlow
             currentStep={currentStatus}
             onStepClick={(step) =>
               form.setValue('status', step as any, { shouldDirty: true })

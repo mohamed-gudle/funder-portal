@@ -62,7 +62,9 @@ interface UseDataTableProps<TData>
   scroll?: boolean;
   shallow?: boolean;
   startTransition?: React.TransitionStartFunction;
-  enableManualPagination?: boolean; // Allow toggling between manual and automatic pagination
+  enableManualPagination?: boolean;
+  enableManualSorting?: boolean;
+  enableManualFiltering?: boolean;
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
@@ -78,7 +80,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     scroll = false,
     shallow = true,
     startTransition,
-    enableManualPagination = true, // Default to manual pagination for backward compatibility
+    enableManualPagination = true,
+    enableManualSorting = true,
+    enableManualFiltering = true,
     ...tableProps
   } = props;
 
@@ -311,9 +315,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    manualPagination: enableManualPagination, // Use prop value instead of hardcoded true
-    manualSorting: true,
-    manualFiltering: true
+    manualPagination: enableManualPagination,
+    manualSorting: enableManualSorting,
+    manualFiltering: enableManualFiltering
   });
 
   return { table, shallow, debounceMs, throttleMs };

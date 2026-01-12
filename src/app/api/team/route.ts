@@ -32,11 +32,20 @@ export async function POST(request: Request) {
       headers: request.headers
     });
 
-    if (session?.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
+
+    // Users can only create their own profile, admins can create for others
+    if (session.user.role !== 'admin' && body.email !== session.user.email) {
+      return NextResponse.json(
+        { error: 'You can only create your own profile' },
+        { status: 403 }
+      );
+    }
+
     const teamMember = await teamMemberService.create(body);
     return NextResponse.json(teamMember, { status: 201 });
   } catch (error) {
