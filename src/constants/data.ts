@@ -52,6 +52,7 @@ export const navItems: NavItem[] = [
     icon: 'user',
     shortcut: ['t', 'm'],
     isActive: false,
+    allowedRoles: ['admin'],
     items: []
   },
   {

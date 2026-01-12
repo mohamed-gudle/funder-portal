@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { openCallService } from '@/server/services/open-call.service';
 import { CALL_STAGES } from '@/server/models/open-call.model';
-import { emailClient } from '@/lib/email/emailClient';
-import TeamMember from '@/server/models/team-member.model';
-import { Types } from 'mongoose';
+import { notificationService } from '@/server/services/notification.service';
 import { auth } from '@/lib/auth';
 import Activity from '@/server/models/activity.model';
 import connectDB from '@/lib/db';
@@ -70,7 +68,13 @@ export async function PUT(
     );
 
     if (assignmentDiffs.length > 0) {
-      await sendAssignmentNotifications(openCall, assignmentDiffs);
+      for (const diff of assignmentDiffs) {
+        await notificationService.notifyAssignment(
+          openCall,
+          diff.stage,
+          diff.assignees
+        );
+      }
     }
 
     // Stage change notification + activity (skip backward moves)
@@ -79,7 +83,12 @@ export async function PUT(
       body.status !== previousStatus &&
       !isMovingBackward(previousStatus, body.status)
     ) {
-      await sendStageChangeEmails(openCall, previousStatus, body.status);
+      await notificationService.notifyStageChange(
+        openCall,
+        previousStatus,
+        body.status
+      );
+
       await logStageChangeActivity(
         id,
         previousStatus,
@@ -162,99 +171,6 @@ function getAssignmentDiff(
   });
 
   return diffs;
-}
-
-async function resolveTeamMemberEmails(
-  identifiers: (string | Types.ObjectId)[]
-) {
-  const normalized = identifiers
-    .map((id) => (typeof id === 'string' ? id : id?.toString()))
-    .filter(Boolean) as string[];
-
-  if (normalized.length === 0) return [];
-
-  const objectIds = normalized.filter((id) => Types.ObjectId.isValid(id));
-  const otherIds = normalized.filter((id) => !Types.ObjectId.isValid(id));
-
-  const orQueries: any[] = [];
-
-  if (objectIds.length) {
-    orQueries.push({ _id: { $in: objectIds } });
-  }
-
-  if (otherIds.length) {
-    orQueries.push({ name: { $in: otherIds } });
-    orQueries.push({ email: { $in: otherIds } });
-  }
-
-  if (!orQueries.length) return [];
-
-  const teamMembers = await TeamMember.find({ $or: orQueries });
-  const uniqueEmails = new Set(
-    teamMembers.map((member) => member.email).filter(Boolean)
-  );
-
-  return Array.from(uniqueEmails);
-}
-
-async function sendAssignmentNotifications(
-  openCall: any,
-  diffs: Array<{ stage: string; assignees: string[] }>
-) {
-  for (const diff of diffs) {
-    const emails = await resolveTeamMemberEmails(diff.assignees);
-    if (!emails.length) continue;
-
-    try {
-      await emailClient.send({
-        to: emails,
-        subject: `Assigned to ${diff.stage} for "${openCall.title}"`,
-        html: `<p>You have been assigned to the <strong>${diff.stage}</strong> stage for <strong>${openCall.title}</strong>.</p>
-        <p>Current status: ${openCall.status}</p>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/open-calls/${openCall.id || openCall._id}">View call details</a></p>`
-      });
-    } catch (error) {
-      console.error('Failed to send assignment notification', error);
-    }
-  }
-}
-
-async function sendStageChangeEmails(
-  openCall: any,
-  previousStatus: string,
-  newStatus: string
-) {
-  const stageAssignees =
-    openCall.stagePermissions?.find(
-      (permission: any) => permission.stage === newStatus
-    )?.assignees || [];
-
-  const recipients = new Set<string>();
-
-  const stageEmails = await resolveTeamMemberEmails(stageAssignees);
-  stageEmails.forEach((email) => recipients.add(email));
-
-  const ownerEmails = await resolveTeamMemberEmails([
-    openCall.internalOwner
-  ] as any);
-  ownerEmails.forEach((email) => recipients.add(email));
-
-  if (!recipients.size) return;
-
-  const deadline = openCall.deadline ? new Date(openCall.deadline) : null;
-  const deadlineText = deadline ? deadline.toLocaleDateString() : 'N/A';
-
-  try {
-    await emailClient.send({
-      to: Array.from(recipients),
-      subject: `Stage changed to ${newStatus}: ${openCall.title}`,
-      html: `<p>The open call <strong>${openCall.title}</strong> moved from <strong>${previousStatus}</strong> to <strong>${newStatus}</strong>.</p>
-      <p>Deadline: ${deadlineText}</p>
-      <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/open-calls/${openCall.id || openCall._id}">Review the call</a></p>`
-    });
-  } catch (error) {
-    console.error('Failed to send stage change email', error);
-  }
 }
 
 async function logStageChangeActivity(

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import Activity from '@/server/models/activity.model';
 import dbConnect from '@/lib/db';
+import { openCallService } from '@/server/services/open-call.service';
+import { notificationService } from '@/server/services/notification.service';
+import { bilateralEngagementService } from '@/server/services/bilateral-engagement.service';
 
 export async function GET(req: NextRequest) {
   try {
@@ -75,6 +78,42 @@ export async function POST(req: NextRequest) {
       parent,
       parentModel
     });
+
+    // Notify owners
+    if (type !== 'Status Change') {
+      try {
+        if (parentModel === 'OpenCall') {
+          const openCall = await openCallService.findById(parent);
+          if (openCall) {
+            const activityWithAuthor = {
+              ...newActivity.toObject(),
+              author: { id: session.user.id }
+            };
+            await notificationService.notifyNewActivity(
+              activityWithAuthor,
+              openCall,
+              'OpenCall'
+            );
+          }
+        } else if (parentModel === 'BilateralEngagement') {
+          const engagement = await bilateralEngagementService.findById(parent);
+          if (engagement) {
+            const activityWithAuthor = {
+              ...newActivity.toObject(),
+              author: { id: session.user.id }
+            };
+            await notificationService.notifyNewActivity(
+              activityWithAuthor,
+              engagement,
+              'BilateralEngagement'
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Failed to send activity notification:', err);
+        // Don't block response
+      }
+    }
 
     return NextResponse.json(newActivity, { status: 201 });
   } catch (error) {

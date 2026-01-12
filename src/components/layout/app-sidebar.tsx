@@ -71,10 +71,8 @@ export default function AppSidebar() {
             {navItems
               .filter(
                 (item) =>
-                  !(
-                    item.url === '/dashboard/team' &&
-                    session?.user?.role === 'user'
-                  )
+                  !item.allowedRoles ||
+                  item.allowedRoles.includes(session?.user?.role || '')
               )
               .map((item) => {
                 const Icon = item.icon ? Icons[item.icon] : Icons.logo;
