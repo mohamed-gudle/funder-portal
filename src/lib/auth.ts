@@ -19,8 +19,6 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_SECRET || 'default-secret-change-in-production',
   database: mongodbAdapter(db),
 
-  database: mongodbAdapter(db),
-
   baseURL: (() => {
     const url =
       process.env.BETTER_AUTH_URL ||

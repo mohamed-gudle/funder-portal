@@ -742,6 +742,7 @@ export const fakeTeamMembers = {
         speciality: 'Renewable Energy',
         position: 'Senior Program Manager',
         profilePhoto: 'https://api.slingacademy.com/public/sample-users/1.png',
+        role: 'admin',
         createdAt: new Date('2024-01-15').toISOString(),
         updatedAt: new Date('2024-11-01').toISOString()
       },
@@ -753,6 +754,7 @@ export const fakeTeamMembers = {
         speciality: 'Agriculture',
         position: 'Technical Advisor',
         profilePhoto: 'https://api.slingacademy.com/public/sample-users/2.png',
+        role: 'member',
         createdAt: new Date('2024-02-20').toISOString(),
         updatedAt: new Date('2024-11-10').toISOString()
       },
@@ -764,6 +766,7 @@ export const fakeTeamMembers = {
         speciality: 'Clean Cooking',
         position: 'Project Lead',
         profilePhoto: 'https://api.slingacademy.com/public/sample-users/3.png',
+        role: 'member',
         createdAt: new Date('2024-03-10').toISOString(),
         updatedAt: new Date('2024-11-15').toISOString()
       }
