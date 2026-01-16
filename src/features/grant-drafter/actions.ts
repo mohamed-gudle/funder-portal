@@ -181,3 +181,78 @@ export async function sendMessage(sessionId: string, message: string) {
     return { success: false, error: 'Failed to process message' };
   }
 }
+
+export async function processGoogleDriveFile(
+  sessionId: string,
+  fileId: string,
+  accessToken: string,
+  fileName: string
+) {
+  const checkpointer = new MongoDBSaver();
+  const { createGrantGraph } = await import('./graph');
+
+  try {
+    // 1. Fetch file content
+    let content = '';
+
+    // Try to export as text (works for Google Docs)
+    const exportResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }
+    );
+
+    if (exportResponse.ok) {
+      content = await exportResponse.text();
+    } else {
+      // If export fails (e.g. not a Google Doc), try direct download
+      const downloadResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }
+      );
+
+      if (downloadResponse.ok) {
+        // Check content type
+        const contentType = downloadResponse.headers.get('content-type');
+        if (contentType?.includes('text') || contentType?.includes('json')) {
+          content = await downloadResponse.text();
+        } else {
+          content = `[Binary file selected: ${fileName}. Content not extracted in this version.]`;
+        }
+      } else {
+        throw new Error('Failed to download file');
+      }
+    }
+
+    if (!content) content = '[Empty File]';
+
+    // 2. Inject into Graph history
+    // We add a HumanMessage with the file content effectively acting as a prompt with context.
+    // Or we could use a SystemMessage, but HumanMessage "Checking this file..." is often better for the flow.
+    // Let's frame it as the user providing context.
+
+    const messageContent = `I am sharing a file for context.\n\nFile Name: ${fileName}\n\nContent:\n${content}\n\nPlease use this context for future drafting.`;
+
+    // Restore state to save
+    const config = { configurable: { thread_id: sessionId } };
+
+    // We can just invoke the graph with this message.
+    const graph = createGrantGraph(checkpointer);
+
+    await graph.invoke(
+      {
+        messages: [new HumanMessage(messageContent)]
+        // optional: preserve existing context if needed, but the graph state management should handle it
+      },
+      config
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error processing Drive file:', error);
+    return { success: false, error: 'Failed to process Google Drive file' };
+  }
+}

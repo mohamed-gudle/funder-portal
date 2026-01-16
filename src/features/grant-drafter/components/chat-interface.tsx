@@ -6,8 +6,10 @@ import {
   createOrGetChatSession,
   getChatHistory,
   sendMessage,
-  getUserChatSessions
+  getUserChatSessions,
+  processGoogleDriveFile
 } from '../actions';
+import { GoogleDrivePicker } from '@/components/google-drive-picker';
 import { Heading } from '@/components/ui/heading';
 import { Plus } from 'lucide-react';
 
@@ -29,6 +31,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   );
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingDrive, setIsProcessingDrive] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,6 +115,58 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setIsLoading(false);
   };
 
+  const handleDriveSelect = async (
+    fileId: string,
+    accessToken: string,
+    fileName: string
+  ) => {
+    setIsProcessingDrive(true);
+    try {
+      // Ensure session
+      let currentSessionId = sessionId;
+      if (!currentSessionId) {
+        const res = await createOrGetChatSession(userId, selectedCallId);
+        if (res.success && res.sessionId) {
+          currentSessionId = res.sessionId;
+          setSessionId(res.sessionId);
+          getUserChatSessions(userId, selectedCallId).then(setSessions);
+        } else {
+          setIsProcessingDrive(false);
+          return;
+        }
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'system',
+          content: `Importing context from Google Drive: ${fileName}...`
+        }
+      ]);
+
+      const res = await processGoogleDriveFile(
+        currentSessionId!,
+        fileId,
+        accessToken,
+        fileName
+      );
+
+      if (res.success) {
+        const history = await getChatHistory(currentSessionId!);
+        setMessages(history);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { role: 'system', content: `Error importing file: ${res.error}` }
+        ]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessingDrive(false);
+    }
+  };
+
   return (
     <div className='flex h-[calc(100vh-200px)] overflow-hidden rounded-lg border bg-white shadow-sm'>
       {/* Sidebar */}
@@ -137,6 +192,13 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               </option>
             ))}
           </select>
+
+          <div className='mb-4'>
+            <GoogleDrivePicker
+              onFileSelect={handleDriveSelect}
+              isLoading={isProcessingDrive}
+            />
+          </div>
 
           <button
             onClick={createNewSession}
