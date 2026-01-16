@@ -56,6 +56,14 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'Grant Drafter',
+    url: '/dashboard/grant-drafter',
+    icon: 'user', // Placeholder, ideally a document or pencil icon if available
+    shortcut: ['g', 'd'],
+    isActive: false,
+    items: []
+  },
+  {
     title: 'Knowledge',
     url: '/dashboard/knowledge',
     icon: 'page',
